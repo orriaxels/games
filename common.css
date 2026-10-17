@@ -1,6 +1,38 @@
-/* Shared look for the start page and both games. */
+/* Shared look for the start page and all the games: "lopapeysa".
+   Snow-white background, night-blue wool, one colour per game, puffin orange for records.
+   The knitted yoke band (drawn by knitBand() in common.js) is the one decorative element. */
 :root {
-  --bg: #4a752c;
+  --snow: #edf2f6;
+  --night: #1b2a4a;
+  --night-soft: #4a5a78;
+  --wool: #c9d3dc;
+  --moss: #5e9a3a;
+  --moss-dark: #3f6f22;
+  --glacier: #2f7fc4;
+  --glacier-dark: #1d5b93;
+  --crowberry: #6e3a9a;
+  --crowberry-dark: #4d2470;
+  --puffin: #ff8a1f;
+  --puffin-dark: #c95f00;
+  --flag: #e5484d;
+
+  /* each game page sets --game / --game-dark to its own colour */
+  --game: var(--night);
+  --game-dark: #0f1a33;
+
+  --display: 'Gluten', 'Comic Sans MS', system-ui, sans-serif;
+  --text: 'Lexend', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+
+  /* type scale, ratio 1.25 */
+  --s-1: 14px;
+  --s0: 17px;
+  --s1: 21px;
+  --s2: 26px;
+  --s3: 33px;
+  --s4: 41px;
+  --s5: 52px;
+
+  --edge: 0 4px 0;   /* toy-block bottom edge, coloured per element */
 }
 
 * { box-sizing: border-box; }
@@ -8,13 +40,14 @@
 html, body {
   margin: 0;
   height: 100%;
-  background: var(--bg);
+  background: var(--snow);
   overscroll-behavior: none;
 }
 
 body {
-  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-  color: #fff;
+  font-family: var(--text);
+  font-size: var(--s0);
+  color: var(--night);
   -webkit-user-select: none;
   user-select: none;
   -webkit-touch-callout: none;
@@ -22,7 +55,21 @@ body {
   touch-action: manipulation;
 }
 
-button { font-family: inherit; cursor: pointer; }
+/* Behind the phone's clock and battery (iPhone draws them in white over the page) */
+body::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 5;
+  height: env(safe-area-inset-top);
+  background: var(--night);
+  pointer-events: none;
+}
+
+button { font-family: inherit; color: inherit; cursor: pointer; }
+:focus-visible { outline: 3px solid var(--puffin); outline-offset: 2px; }
 
 .app {
   height: 100vh;
@@ -37,6 +84,15 @@ button { font-family: inherit; cursor: pointer; }
     calc(env(safe-area-inset-right) + 12px)
     calc(env(safe-area-inset-bottom) + 12px)
     calc(env(safe-area-inset-left) + 12px);
+}
+
+/* The knitted band */
+.yoke {
+  flex: none;
+  height: var(--yoke-h, 99px);
+  background-color: var(--night);
+  background-repeat: repeat-x;
+  background-position: center top;
 }
 
 /* Top bar: [home + stat] [centre] [stat] */
@@ -56,27 +112,43 @@ button { font-family: inherit; cursor: pointer; }
   border-radius: 50%;
   display: grid;
   place-items: center;
-  background: rgba(0, 0, 0, 0.2);
-  color: #fff;
+  background: #fff;
+  color: var(--night);
   font-size: 30px;
   font-weight: 700;
   line-height: 1;
   text-decoration: none;
   padding-bottom: 4px;
+  box-shadow: var(--edge) var(--wool);
 }
-.home:active { background: rgba(0, 0, 0, 0.35); }
+.home:active { transform: translateY(3px); box-shadow: 0 1px 0 var(--wool); }
 
 .stat {
   min-width: 84px;
   padding: 8px 12px;
   border-radius: 999px;
-  background: rgba(0, 0, 0, 0.2);
-  font-size: 20px;
-  font-weight: 800;
+  background: #fff;
+  color: var(--night);
+  font-size: var(--s0);
+  font-weight: 700;
   font-variant-numeric: tabular-nums;
   text-align: center;
   white-space: nowrap;
+  box-shadow: inset 0 0 0 2px var(--wool);
 }
+
+/* Round "new game" button (Minesweeper's face, the 🔄 in the puzzles) */
+.face, .new {
+  width: 56px;
+  height: 56px;
+  border: none;
+  border-radius: 50%;
+  background: var(--puffin);
+  font-size: 30px;
+  line-height: 1;
+  box-shadow: var(--edge) var(--puffin-dark);
+}
+.face:active, .new:active { transform: translateY(3px); box-shadow: 0 1px 0 var(--puffin-dark); }
 
 /* Difficulty + records button */
 .row {
@@ -90,7 +162,7 @@ button { font-family: inherit; cursor: pointer; }
   gap: 4px;
   padding: 4px;
   border-radius: 999px;
-  background: rgba(0, 0, 0, 0.2);
+  background: #dfe7ee;
 }
 .levels button {
   flex: 1;
@@ -98,25 +170,30 @@ button { font-family: inherit; cursor: pointer; }
   border: none;
   border-radius: 999px;
   background: transparent;
-  color: #fff;
+  color: var(--night-soft);
   font-size: 16px;
-  font-weight: 700;
+  font-weight: 600;
 }
-.levels button.active { background: #fff; color: var(--bg); }
+.levels button.active {
+  background: var(--game);
+  color: #fff;
+  font-weight: 700;
+  box-shadow: 0 3px 0 var(--game-dark);
+}
 
 .trophy {
   padding: 0 14px;
   border: none;
   border-radius: 999px;
-  background: #ffd54f;
-  color: #5d4037;
+  background: var(--puffin);
+  color: var(--night);
   font-size: 17px;
-  font-weight: 800;
+  font-weight: 700;
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
-  box-shadow: 0 4px 0 rgba(0, 0, 0, 0.25);
+  box-shadow: var(--edge) var(--puffin-dark);
 }
-.trophy:active { transform: translateY(2px); box-shadow: 0 2px 0 rgba(0, 0, 0, 0.25); }
+.trophy:active { transform: translateY(3px); box-shadow: 0 1px 0 var(--puffin-dark); }
 
 .board-wrap {
   flex: 1;
@@ -130,8 +207,8 @@ button { font-family: inherit; cursor: pointer; }
 .hint {
   margin: 0;
   text-align: center;
-  font-size: 14px;
-  opacity: 0.85;
+  font-size: var(--s-1);
+  color: var(--night-soft);
 }
 
 /* Popups */
@@ -141,88 +218,95 @@ button { font-family: inherit; cursor: pointer; }
   z-index: 10;
   display: grid;
   place-items: center;
-  background: rgba(0, 0, 0, 0.45);
+  background: rgba(27, 42, 74, 0.55);
 }
 .overlay[hidden] { display: none; }
 
 .card {
-  width: min(320px, 86vw);
-  padding: 28px 20px;
-  border-radius: 24px;
+  width: min(330px, 88vw);
+  padding: 26px 22px 24px;
+  border-radius: 28px;
   background: #fff;
-  color: #333;
+  color: var(--night);
   text-align: center;
+  box-shadow: 0 8px 0 var(--game-dark);
   animation: pop 0.2s ease-out;
 }
-.card h2 { margin: 8px 0 4px; font-size: 28px; }
-.card p { margin: 0 0 20px; font-size: 18px; }
-.big { font-size: 64px; line-height: 1; }
+.card h2 { margin: 10px 0 6px; font-family: var(--display); font-size: var(--s3); font-weight: 800; line-height: 1.05; }
+.card p { margin: 0 0 20px; font-size: var(--s0); line-height: 1.45; color: var(--night-soft); }
+.big { font-size: 60px; line-height: 1; }
 
 .actions { display: flex; gap: 10px; justify-content: center; }
 
 .again {
-  padding: 14px 32px;
+  padding: 14px 30px;
   border: none;
   border-radius: 999px;
-  background: var(--bg);
-  color: #fff;
-  font-size: 20px;
-  font-weight: 800;
+  background: var(--puffin);
+  color: var(--night);
+  font-size: var(--s1);
+  font-weight: 700;
+  box-shadow: var(--edge) var(--puffin-dark);
 }
-.again.secondary { background: #e8e8e8; color: #333; }
+.again:active { transform: translateY(3px); box-shadow: 0 1px 0 var(--puffin-dark); }
+.again.secondary { background: #e6ecf1; color: var(--night); box-shadow: var(--edge) var(--wool); }
 
 /* Records panel */
 .records {
   max-height: 86vh;
   max-height: 86dvh;
   overflow-y: auto;
+  text-align: left;
 }
+.records h2 { text-align: center; }
 .records table {
   width: 100%;
-  margin-bottom: 16px;
+  margin-bottom: 18px;
   border-collapse: collapse;
-  font-size: 17px;
+  font-size: var(--s0);
 }
-.records th { font-size: 13px; color: #888; font-weight: 600; padding-bottom: 4px; }
-.records td { padding: 8px 4px; border-top: 1px solid #eee; font-weight: 700; font-variant-numeric: tabular-nums; }
+.records th { font-size: var(--s-1); color: var(--night-soft); font-weight: 600; padding-bottom: 6px; text-align: right; }
+.records td { padding: 9px 4px; border-top: 2px solid var(--snow); font-weight: 700; font-variant-numeric: tabular-nums; text-align: right; }
 .records th:first-child, .records td:first-child { text-align: left; }
-.records h3 { margin: 0 0 8px; font-size: 18px; text-align: left; }
+.records h3 { margin: 0 0 6px; font-size: var(--s0); font-weight: 700; }
 
 .history {
-  margin: 0 0 20px;
+  margin: 0 0 22px;
   padding: 0;
   list-style: none;
-  text-align: left;
-  font-size: 16px;
 }
 .history li {
-  display: flex;
-  justify-content: space-between;
-  gap: 8px;
-  padding: 7px 0;
-  border-top: 1px solid #eee;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  column-gap: 10px;
+  padding: 8px 0;
+  border-top: 2px solid var(--snow);
 }
-.history .when { color: #888; font-size: 14px; white-space: nowrap; }
-.history .empty { color: #888; justify-content: center; }
+.history .what { font-weight: 600; }
+.history .value { font-weight: 700; font-variant-numeric: tabular-nums; text-align: right; }
+.history .when { grid-column: 1 / -1; font-size: var(--s-1); color: var(--night-soft); }
+.history .empty { display: block; color: var(--night-soft); text-align: center; }
+.records .again { display: block; margin: 0 auto; }
 
 /* Leaderboard bits: place in the win popup, and the name form */
 #result-board:empty { display: none; }
-#result-board { margin: -8px 0 18px; }
-.board-line { margin: 0; font-size: 17px; font-weight: 700; color: #5d4037; }
-.name-form { display: grid; gap: 10px; }
-.name-form p { margin: 0; font-size: 16px; }
+#result-board { margin: -6px 0 20px; }
+.board-line { margin: 0; font-size: var(--s0); font-weight: 700; color: var(--puffin-dark); }
+.name-form { display: grid; gap: 12px; }
+.name-form p { margin: 0; font-size: var(--s0); color: var(--night); }
 .name-form input {
   width: 100%;
   padding: 12px 14px;
-  border: 2px solid #ccc;
-  border-radius: 14px;
+  border: 2px solid var(--wool);
+  border-radius: 16px;
   font: inherit;
-  font-size: 20px;
+  font-size: var(--s1);
   text-align: center;
+  color: var(--night);
   -webkit-user-select: text;
   user-select: text;
 }
-.name-form input:focus { outline: none; border-color: var(--bg); }
+.name-form input:focus { outline: none; border-color: var(--game); }
 
 .confetti {
   position: fixed;
@@ -239,4 +323,9 @@ button { font-family: inherit; cursor: pointer; }
 }
 @keyframes fall {
   to { transform: translateY(110vh) rotate(360deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition: none !important; }
+  .confetti { display: none; }
 }

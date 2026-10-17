@@ -1,11 +1,12 @@
 /* Reiknigáta (math crossword). Shared layout and popups are in ../common.css. */
 :root {
-  --bg: #7a4ea3;
+  --game: var(--crowberry);
+  --game-dark: var(--crowberry-dark);
   --tile: 60px;
-  --plus: #43a047;
-  --minus: #1e88e5;
-  --times: #fb8c00;
-  --divide: #d81b60;
+  --plus: var(--moss);
+  --minus: var(--glacier);
+  --times: var(--puffin-dark);
+  --divide: #c2255c;
 }
 
 /* On phones: compact controls, so the board gets as much room as possible. */
@@ -19,24 +20,13 @@
       calc(env(safe-area-inset-left) + 8px);
   }
   .home { width: 38px; height: 38px; font-size: 26px; }
-  .stat { min-width: 0; padding: 6px 10px; font-size: 17px; }
+  .stat { min-width: 0; padding: 6px 10px; font-size: 16px; }
+  .new { width: 46px; height: 46px; font-size: 24px; }
   .levels { padding: 3px; }
   .levels button { padding: 7px 0; font-size: 15px; }
-  .trophy { padding: 0 10px; font-size: 15px; box-shadow: 0 3px 0 rgba(0, 0, 0, 0.25); }
+  .trophy { padding: 0 10px; font-size: 15px; }
   .hint { display: none; }
 }
-
-.new {
-  width: 46px;
-  height: 46px;
-  border: none;
-  border-radius: 50%;
-  background: #ffd54f;
-  font-size: 24px;
-  line-height: 1;
-  box-shadow: 0 4px 0 rgba(0, 0, 0, 0.25);
-}
-.new:active { transform: translateY(3px); box-shadow: 0 1px 0 rgba(0, 0, 0, 0.25); }
 
 /* Sign picker */
 .signs {
@@ -44,19 +34,20 @@
   align-items: center;
   gap: 6px;
 }
-.signs-label { font-size: 14px; font-weight: 700; margin-right: 2px; }
+.signs-label { font-size: var(--s-1); font-weight: 600; color: var(--night-soft); margin-right: 2px; }
 .signs button {
   flex: 1;
-  height: 36px;
-  border: 2px solid rgba(255, 255, 255, 0.5);
+  height: 38px;
+  border: none;
   border-radius: 12px;
-  background: transparent;
-  color: rgba(255, 255, 255, 0.7);
+  background: #fff;
+  color: var(--night-soft);
   font-size: 22px;
-  font-weight: 800;
+  font-weight: 700;
   line-height: 1;
+  box-shadow: inset 0 0 0 2px var(--wool);
 }
-.signs button.on { border-color: #fff; background: #fff; color: var(--bg); box-shadow: 0 3px 0 rgba(0, 0, 0, 0.25); }
+.signs button.on { background: var(--crowberry); color: #fff; box-shadow: 0 3px 0 var(--crowberry-dark); }
 .signs button.shake { animation: shake 0.3s; }
 
 /* Board: numbers, signs and = on a grid of tiles (5x5 up to 9x9).
@@ -75,17 +66,22 @@
   margin: 0;
   padding: 0;
   border: none;
-  border-radius: calc(var(--tile) * 0.22);
-  font-size: calc(var(--tile) * 0.44);
-  font-weight: 800;
+  border-radius: calc(var(--tile) * 0.24);
+  font-size: calc(var(--tile) * 0.42);
+  font-weight: 700;
   line-height: 1;
   font-variant-numeric: tabular-nums;
 }
 
-.num { background: #fff; color: #263238; box-shadow: 0 4px 0 rgba(0, 0, 0, 0.2); }
-.num.blank { background: #fff8e1; color: #1565c0; border: max(2px, calc(var(--tile) * 0.05)) dashed #c9a227; }
-.num.blank.filled { border-style: solid; border-color: #e0c56a; }
-.num.sel { background: #ffe082; border: max(2px, calc(var(--tile) * 0.05)) solid #f57c00; }
+.num { background: #fff; color: var(--night); box-shadow: inset 0 0 0 2px var(--wool), 0 4px 0 var(--wool); }
+.num.blank {
+  background: #f4eefa;
+  color: var(--crowberry);
+  box-shadow: none;
+  border: max(2px, calc(var(--tile) * 0.05)) dashed #b892d9;
+}
+.num.blank.filled { border-style: solid; border-color: #c9aee3; background: #fff; }
+.num.sel { background: #ffe3c4; border: max(2px, calc(var(--tile) * 0.05)) solid var(--puffin); }
 .num.pop { animation: pop 0.15s ease-out; }
 
 .op, .eq {
@@ -101,9 +97,9 @@
 .op[data-op="−"] { background: var(--minus); }
 .op[data-op="×"] { background: var(--times); }
 .op[data-op="÷"] { background: var(--divide); }
-.eq { background: rgba(0, 0, 0, 0.25); }
-.op.ok, .eq.ok { background: #2e7d32; box-shadow: 0 0 0 max(2px, calc(var(--tile) * 0.05)) #a5d6a7; }
-.op.bad, .eq.bad { background: #e53935; box-shadow: 0 0 0 max(2px, calc(var(--tile) * 0.05)) #ffcdd2; }
+.eq { background: var(--night-soft); }
+.op.ok, .eq.ok { background: var(--moss-dark); box-shadow: 0 0 0 max(2px, calc(var(--tile) * 0.05)) #b9dca3; }
+.op.bad, .eq.bad { background: var(--flag); box-shadow: 0 0 0 max(2px, calc(var(--tile) * 0.05)) #fbc9cb; }
 
 .gap { visibility: hidden; }
 
@@ -118,14 +114,14 @@
   border: none;
   border-radius: 14px;
   background: #fff;
-  color: var(--bg);
-  font-size: 26px;
-  font-weight: 800;
-  box-shadow: 0 4px 0 rgba(0, 0, 0, 0.25);
+  color: var(--crowberry);
+  font-size: 24px;
+  font-weight: 700;
+  box-shadow: inset 0 0 0 2px var(--wool), var(--edge) var(--wool);
 }
-.pad button:active { transform: translateY(2px); box-shadow: 0 2px 0 rgba(0, 0, 0, 0.25); }
-.pad .erase { background: #ffd54f; color: #5d4037; }
-.pad .next { background: #ce93d8; color: #4a148c; }
+.pad button:active { transform: translateY(3px); box-shadow: inset 0 0 0 2px var(--wool), 0 1px 0 var(--wool); }
+.pad .erase { background: #e6ecf1; color: var(--night); }
+.pad .next { background: var(--crowberry); color: #fff; box-shadow: var(--edge) var(--crowberry-dark); }
 
 @keyframes shake {
   25% { transform: translateX(-6px); }

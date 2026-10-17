@@ -203,8 +203,8 @@ function finishGame(won, delay) {
   const best = records.best(level);
   const isRecord = records.add({ level, won, time });
   let text;
-  if (isRecord) text = `${seconds(time)} — nýtt met! 🏆`;
-  else if (won) text = `${seconds(time)} · Metið er ${seconds(best)}`;
+  if (isRecord) text = `Nýtt met: ${seconds(time)}! 🏆`;
+  else if (won) text = `${seconds(time)}. Metið er ${seconds(best)}.`;
   else text = best ? `Úps, sprengja! Metið þitt er ${seconds(best)}.` : 'Úps, sprengja! Reyna aftur?';
   updateBest();
 
@@ -235,7 +235,8 @@ function openRecords() {
   });
   const games = records.history().map((g) => ({
     at: g.at,
-    text: `${g.won ? '🎉' : '💣'} ${LEVEL_NAMES[g.level] || ''}${g.won ? ' · ' + g.time + ' sek' : ''}`,
+    what: `${g.won ? '🎉' : '💣'} ${LEVEL_NAMES[g.level] || ''}`,
+    value: g.won ? g.time + ' sek' : 'Búmm',
   }));
   showRecords(rows, games);
 }
@@ -321,8 +322,8 @@ modeEl.addEventListener('click', () => {
   $('mode-icon').textContent = flagMode ? '🚩' : '⛏️';
   $('mode-label').textContent = flagMode ? 'Flagga' : 'Grafa';
   $('hint').textContent = flagMode
-    ? 'Ýttu til að flagga · Skiptu yfir í Grafa til að grafa'
-    : 'Ýttu til að grafa · Haltu inni til að flagga';
+    ? 'Ýttu til að flagga. Skiptu yfir í Grafa til að grafa.'
+    : 'Ýttu til að grafa, haltu inni til að flagga';
 });
 
 $('levels').addEventListener('click', (e) => {

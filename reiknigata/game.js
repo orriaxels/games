@@ -521,7 +521,7 @@ function win() {
   updateBest();
   buzz([40, 30, 40]);
   confetti();
-  const text = isRecord ? `${clock(time)} — nýtt met! 🏆` : `${clock(time)} · Metið er ${clock(best)}`;
+  const text = isRecord ? `Nýtt met: ${clock(time)}! 🏆` : `Tíminn var ${clock(time)}. Metið er ${clock(best)}.`;
   setTimeout(() => {
     if (!done) return;
     showResult('🎉', 'Þú kláraðir!', text);
@@ -601,7 +601,8 @@ $('trophy').addEventListener('click', () => {
   });
   const games = records.history().map((g) => ({
     at: g.at,
-    text: `🎉 ${LEVEL_NAMES[g.level] || ''} · ${(g.ops || []).join(' ')} · ${clock(g.time)}`,
+    what: `🎉 ${LEVEL_NAMES[g.level] || ''}, ${(g.ops || []).join(' ')}`,
+    value: clock(g.time),
   }));
   showRecords(rows, games);
 });

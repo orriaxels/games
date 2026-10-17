@@ -95,6 +95,42 @@ function confetti() {
   }
 }
 
+// --- the knitted yoke band ---
+
+// A knitting chart, one character per stitch, repeated sideways:
+// '.' = background wool, 'a' = light wool, 'b' = the page's colour, 'c' = puffin orange.
+const YOKE_CHART = [
+  'aaaaaaaaaaaa',
+  'a.a.a.a.a.a.',
+  '............',
+  '.....bb.....',
+  '....bbbb....',
+  'c..bbaabb..c',
+  '....bbbb....',
+  '.....bb.....',
+  '............',
+  '.a.a.a.a.a.a',
+  'aaaaaaaaaaaa',
+];
+const STITCH_W = 10, STITCH_H = 9;
+
+// Draws the chart as knit stitches (each stitch is a little "V" of two loops) and puts it
+// on `el` as a repeating background. `colors` overrides the yarn colours.
+function knitBand(el, colors = {}) {
+  const yarn = { '.': '#24365c', a: '#e9eef3', b: '#5e9a3a', c: '#ff8a1f', ...colors };
+  const w = YOKE_CHART[0].length * STITCH_W, h = YOKE_CHART.length * STITCH_H;
+  let loops = '';
+  YOKE_CHART.forEach((row, r) => [...row].forEach((ch, c) => {
+    const x = c * STITCH_W, y = r * STITCH_H, fill = yarn[ch];
+    const cy = y + STITCH_H / 2, rx = STITCH_W * 0.26, ry = STITCH_H * 0.55;
+    loops += `<ellipse cx="${x + STITCH_W * 0.3}" cy="${cy}" rx="${rx}" ry="${ry}" fill="${fill}" transform="rotate(-28 ${x + STITCH_W * 0.3} ${cy})"/>`
+      + `<ellipse cx="${x + STITCH_W * 0.7}" cy="${cy}" rx="${rx}" ry="${ry}" fill="${fill}" transform="rotate(28 ${x + STITCH_W * 0.7} ${cy})"/>`;
+  }));
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}">${loops}</svg>`;
+  el.style.backgroundImage = `url("data:image/svg+xml,${encodeURIComponent(svg)}")`;
+  el.style.setProperty('--yoke-h', h + 'px');
+}
+
 // --- popups (markup lives in each game's index.html) ---
 
 function showResult(emoji, title, text) {
@@ -105,7 +141,7 @@ function showResult(emoji, title, text) {
   $('overlay').hidden = false;
 }
 
-// rows: arrays of cell texts; games: [{ text, at }]
+// rows: arrays of cell texts; games: [{ what, value, at }], e.g. { what: '🎉 Létt', value: '42 sek' }
 function showRecords(rows, games) {
   const body = $('records-body');
   body.replaceChildren();
@@ -130,11 +166,15 @@ function showRecords(rows, games) {
   for (const g of games.slice(0, 20)) {
     const li = document.createElement('li');
     const what = document.createElement('span');
-    what.textContent = g.text;
+    what.className = 'what';
+    what.textContent = g.what;
+    const value = document.createElement('span');
+    value.className = 'value';
+    value.textContent = g.value || '';
     const when = document.createElement('span');
     when.className = 'when';
     when.textContent = formatWhen(g.at);
-    li.append(what, when);
+    li.append(what, value, when);
     list.appendChild(li);
   }
   $('records').hidden = false;

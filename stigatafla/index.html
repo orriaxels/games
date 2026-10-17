@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
   <title>Stigatafla</title>
-  <meta name="theme-color" content="#4a752c">
+  <meta name="theme-color" content="#1b2a4a">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -12,35 +12,46 @@
   <link rel="manifest" href="../manifest.json">
   <link rel="icon" href="../icons/icon-192.png">
   <link rel="apple-touch-icon" href="../icons/apple-touch-icon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gluten:wght@700;800&family=Lexend:wght@400;600;700&display=swap">
   <link rel="stylesheet" href="../common.css">
   <style>
-    .title { margin: 0; font-size: 24px; text-align: center; }
+    .app { padding-top: 0; }
+    .yoke {
+      margin: 0 calc(-12px - env(safe-area-inset-right)) 4px calc(-12px - env(safe-area-inset-left));
+      height: calc(var(--yoke-h, 99px) + env(safe-area-inset-top));
+      background-position: center bottom;
+    }
+    .title { margin: 0; font-family: var(--display); font-size: var(--s3); font-weight: 800; line-height: 1; text-align: center; }
     .app > .levels { flex: none; }   /* shared style lets them grow, which is meant for a row */
-    .games { border-radius: 22px; }
-    .games button { display: grid; place-items: center; padding: 6px 0; border-radius: 18px; }
-    .games img { width: 52px; height: 52px; border-radius: 12px; opacity: 0.55; transition: opacity 0.15s, transform 0.15s; }
-    .games button.active img { opacity: 1; transform: scale(1.06); }
+    .games { border-radius: 24px; }
+    .games button { display: grid; place-items: center; padding: 6px 0; border-radius: 20px; }
+    .games img { width: 50px; height: 50px; border-radius: 13px; opacity: 0.5; transition: opacity 0.15s, transform 0.15s; }
+    .games button.active { background: var(--game); box-shadow: 0 3px 0 var(--game-dark); }
+    .games button.active img { opacity: 1; transform: scale(1.06); box-shadow: 0 0 0 2px #fff; }
     .refresh {
       width: 44px; height: 44px; border: none; border-radius: 50%;
-      background: rgba(0, 0, 0, 0.2); color: #fff; font-size: 22px;
+      background: #fff; font-size: 20px; box-shadow: var(--edge) var(--wool);
     }
+    .refresh:active { transform: translateY(3px); box-shadow: 0 1px 0 var(--wool); }
     .me {
       align-self: center;
-      padding: 8px 16px;
+      padding: 7px 16px;
       border: none;
       border-radius: 999px;
-      background: rgba(255, 255, 255, 0.9);
-      color: #333;
-      font-size: 16px;
-      font-weight: 700;
+      background: #fff;
+      font-size: var(--s-1);
+      font-weight: 600;
+      box-shadow: inset 0 0 0 2px var(--wool);
     }
     .list-wrap {
       flex: 1;
       min-height: 0;
       overflow-y: auto;
-      border-radius: 20px;
+      border-radius: 24px;
       background: #fff;
-      color: #333;
+      box-shadow: inset 0 0 0 2px var(--wool);
     }
     .list { margin: 0; padding: 6px 0; list-style: none; }
     .list li {
@@ -48,22 +59,26 @@
       align-items: center;
       gap: 12px;
       padding: 12px 18px;
-      border-top: 1px solid #eee;
-      font-size: 19px;
+      border-top: 2px solid var(--snow);
+      font-size: var(--s0);
     }
     .list li:first-child { border-top: none; }
-    .list .place { width: 36px; text-align: center; font-weight: 800; font-size: 22px; }
-    .list .who { flex: 1; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    .list .time { font-weight: 800; font-variant-numeric: tabular-nums; }
-    .list li.mine { background: #fff8e1; }
-    .status { padding: 28px 18px; text-align: center; color: #777; font-size: 17px; }
+    .list .place { width: 36px; text-align: center; font-weight: 700; font-size: var(--s1); color: var(--night-soft); }
+    .list .who { flex: 1; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .list .time { font-weight: 700; font-variant-numeric: tabular-nums; }
+    /* the top three get the display face, the winner biggest */
+    .list li:nth-child(-n + 3) .who { font-family: var(--display); font-weight: 800; font-size: var(--s1); }
+    .list li:first-child .who { font-size: var(--s2); }
+    .list li.mine { background: #fff1e2; box-shadow: inset 4px 0 0 var(--puffin); }
+    .status { padding: 32px 22px; text-align: center; color: var(--night-soft); font-size: var(--s0); line-height: 1.45; }
   </style>
 </head>
 <body>
   <main class="app">
+    <div class="yoke" id="yoke" aria-hidden="true"></div>
     <header class="bar">
       <div class="bar-left"><a class="home" href="../" aria-label="Heim">‹</a></div>
-      <h1 class="title">🏅 Stigatafla</h1>
+      <h1 class="title">Stigatafla</h1>
       <button id="refresh" class="refresh" type="button" aria-label="Uppfæra">🔄</button>
     </header>
 
@@ -107,7 +122,18 @@
       $('status').hidden = false;
     }
 
+    // The page takes on the colour of the game being shown.
+    const GAME_COLORS = {
+      minesweeper: ['--moss', '--moss-dark'],
+      sudoku: ['--glacier', '--glacier-dark'],
+      reiknigata: ['--crowberry', '--crowberry-dark'],
+    };
+    knitBand($('yoke'), { b: '#ff8a1f', c: '#e9eef3' });
+
     async function load() {
+      const [c, dark] = GAME_COLORS[game];
+      document.documentElement.style.setProperty('--game', `var(${c})`);
+      document.documentElement.style.setProperty('--game-dark', `var(${dark})`);
       document.querySelectorAll('#games button').forEach((b) => b.classList.toggle('active', b.dataset.game === game));
       document.querySelectorAll('#levels button').forEach((b) => b.classList.toggle('active', b.dataset.level === level));
       $('me').textContent = playerName() ? `👤 ${playerName()} ✏️` : '👤 Skrifaðu nafnið þitt';
@@ -120,11 +146,11 @@
       try {
         board = await lbBoard(game, level);
       } catch {
-        if (id === loadId) status('Næ ekki í stigatöfluna. Er netið tengt?');
+        if (id === loadId) status('Næ ekki í stigatöfluna. Tengdu netið og ýttu svo á 🔄.');
         return;
       }
       if (id !== loadId) return;   // a newer tab was picked meanwhile
-      if (!board.length) return status('Enginn hefur klárað þetta ennþá. Verður þú fyrst/ur?');
+      if (!board.length) return status('Enginn er kominn á töfluna hér. Kláraðu leik og vertu fyrst/ur!');
 
       $('status').hidden = true;
       const me = playerName().toLowerCase();

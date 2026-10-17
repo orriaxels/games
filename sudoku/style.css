@@ -1,32 +1,21 @@
 /* Sudoku. Shared layout and popups are in ../common.css. */
 :root {
-  --bg: #3c6aa6;
-  --line: #2b4f80;
-  --thin: #b7c7dd;
+  --game: var(--glacier);
+  --game-dark: var(--glacier-dark);
+  --line: var(--glacier-dark);
+  --thin: #c6d6e8;
   --cell: 36px;
 }
-
-.new {
-  width: 60px;
-  height: 60px;
-  border: none;
-  border-radius: 50%;
-  background: #ffd54f;
-  font-size: 30px;
-  line-height: 1;
-  box-shadow: 0 5px 0 rgba(0, 0, 0, 0.25);
-}
-.new:active { transform: translateY(3px); box-shadow: 0 2px 0 rgba(0, 0, 0, 0.25); }
 
 /* Board: thin lines between cells, thick lines between the 3x3 boxes */
 .board {
   display: grid;
   grid-template-columns: repeat(9, var(--cell));
   border: 3px solid var(--line);
-  border-radius: 10px;
+  border-radius: 12px;
   overflow: hidden;
   background: #fff;
-  box-shadow: 0 6px 0 rgba(0, 0, 0, 0.25);
+  box-shadow: 0 6px 0 var(--glacier-dark);
   touch-action: manipulation;
 }
 
@@ -43,9 +32,9 @@
   align-items: center;
   justify-content: center;
   background: #fff;
-  color: #1565c0;
-  font-size: calc(var(--cell) * 0.6);
-  font-weight: 700;
+  color: var(--glacier);
+  font-size: calc(var(--cell) * 0.58);
+  font-weight: 600;
   line-height: 1;
 }
 .cell.c9 { border-right: none; }
@@ -53,12 +42,12 @@
 .cell.bx { border-right: 3px solid var(--line); }
 .cell.by { border-bottom: 3px solid var(--line); }
 
-.cell.given { color: #263238; font-weight: 800; }
-.cell.peer { background: #e3edf9; }
-.cell.same { background: #bcd4f2; }
-.cell.sel { background: #ffe082; }
-.cell.wrong { color: #e53935; background: #fde0e0; }
-.cell.sel.wrong { background: #ffcdd2; }
+.cell.given { color: var(--night); font-weight: 700; }
+.cell.peer { background: #eaf2fb; }
+.cell.same { background: #cfe2f6; }
+.cell.sel { background: #ffd8ad; }
+.cell.wrong { color: var(--flag); background: #fde3e4; }
+.cell.sel.wrong { background: #fbc9cb; }
 .cell.placed { animation: pop 0.15s ease-out; }
 
 /* Number pad */
@@ -70,13 +59,13 @@
 .pad button {
   height: 54px;
   border: none;
-  border-radius: 14px;
+  border-radius: 16px;
   background: #fff;
-  color: var(--bg);
-  font-size: 28px;
-  font-weight: 800;
-  box-shadow: 0 4px 0 rgba(0, 0, 0, 0.25);
+  color: var(--glacier-dark);
+  font-size: var(--s2);
+  font-weight: 700;
+  box-shadow: inset 0 0 0 2px var(--wool), var(--edge) var(--wool);
 }
-.pad button:active { transform: translateY(2px); box-shadow: 0 2px 0 rgba(0, 0, 0, 0.25); }
-.pad button.done { opacity: 0.35; }
-.pad .erase { background: #ffd54f; color: #5d4037; }
+.pad button:active { transform: translateY(3px); box-shadow: inset 0 0 0 2px var(--wool), 0 1px 0 var(--wool); }
+.pad button.done { opacity: 0.3; }
+.pad .erase { background: #e6ecf1; color: var(--night); }

@@ -274,8 +274,8 @@ function win() {
   buzz([40, 30, 40]);
   confetti();
 
-  let text = isRecord ? `${clock(time)} — nýtt met! 🏆` : `${clock(time)} · Metið er ${clock(best)}`;
-  text += mistakes ? ` · ${errors(mistakes)}` : ' · engin villa! ⭐';
+  let text = isRecord ? `Nýtt met: ${clock(time)}! 🏆` : `Tíminn var ${clock(time)}. Metið er ${clock(best)}.`;
+  text += mistakes ? ` ${errors(mistakes)[0].toUpperCase()}${errors(mistakes).slice(1)}.` : ' Engin villa ⭐';
   setTimeout(() => {
     if (!done) return;
     showResult('🎉', 'Þú kláraðir!', text);
@@ -347,7 +347,8 @@ $('trophy').addEventListener('click', () => {
   });
   const games = records.history().map((g) => ({
     at: g.at,
-    text: `🎉 ${LEVEL_NAMES[g.level] || ''} · ${clock(g.time)} · ${g.mistakes ? errors(g.mistakes) : '⭐'}`,
+    what: `🎉 ${LEVEL_NAMES[g.level] || ''}, ${g.mistakes ? errors(g.mistakes) : 'engin villa ⭐'}`,
+    value: clock(g.time),
   }));
   showRecords(rows, games);
 });

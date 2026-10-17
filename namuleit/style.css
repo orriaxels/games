@@ -1,5 +1,7 @@
 /* Minesweeper. Shared layout and popups are in ../common.css. */
 :root {
+  --game: var(--moss);
+  --game-dark: var(--moss-dark);
   --grass-1: #aad751;
   --grass-2: #a2d149;
   --dirt-1: #e5c29f;
@@ -8,25 +10,13 @@
   --cols: 8;
 }
 
-.face {
-  width: 60px;
-  height: 60px;
-  border: none;
-  border-radius: 50%;
-  background: #ffd54f;
-  font-size: 36px;
-  line-height: 1;
-  box-shadow: 0 5px 0 rgba(0, 0, 0, 0.25);
-}
-.face:active { transform: translateY(3px); box-shadow: 0 2px 0 rgba(0, 0, 0, 0.25); }
-
 /* Board */
 .board {
   display: grid;
   grid-template-columns: repeat(var(--cols), var(--cell));
-  border-radius: 12px;
+  border-radius: 14px;
   overflow: hidden;
-  box-shadow: 0 6px 0 rgba(0, 0, 0, 0.25);
+  box-shadow: 0 0 0 4px var(--moss), 0 8px 0 4px var(--moss-dark);
   touch-action: none;
 }
 
@@ -44,7 +34,7 @@
   background: var(--grass-1);
   color: inherit;
   font-size: calc(var(--cell) * 0.58);
-  font-weight: 800;
+  font-weight: 700;
   line-height: 1;
 }
 .cell.alt { background: var(--grass-2); }
@@ -62,8 +52,8 @@
 }
 .cell.open { background: var(--dirt-1); }
 .cell.open.alt { background: var(--dirt-2); }
-.cell.boom { background: #e53935; }
-.cell.peek { box-shadow: inset 0 0 0 3px #ffeb3b; animation: glow 0.5s ease-in-out 3 alternate; }
+.cell.boom { background: var(--flag); }
+.cell.peek { box-shadow: inset 0 0 0 3px var(--puffin); animation: glow 0.5s ease-in-out 3 alternate; }
 .cell.peek-source { box-shadow: inset 0 0 0 3px #fff; }
 .cell span { font-size: calc(var(--cell) * 0.5); animation: pop 0.15s ease-out; }
 
@@ -78,22 +68,22 @@
 
 /* Dig / flag toggle */
 .mode {
-  height: 62px;
+  height: 60px;
   border: none;
-  border-radius: 18px;
+  border-radius: 20px;
   background: #fff;
-  color: var(--bg);
-  font-size: 24px;
-  font-weight: 800;
-  box-shadow: 0 5px 0 rgba(0, 0, 0, 0.25);
+  color: var(--moss-dark);
+  font-size: var(--s1);
+  font-weight: 700;
+  box-shadow: inset 0 0 0 3px var(--moss), 0 5px 0 var(--moss-dark);
 }
-.mode.on { background: #e53935; color: #fff; }
-.mode:active { transform: translateY(3px); box-shadow: 0 2px 0 rgba(0, 0, 0, 0.25); }
+.mode.on { background: var(--flag); color: #fff; box-shadow: 0 5px 0 #a8262b; }
+.mode:active { transform: translateY(3px); }
 
 @keyframes hold {
   from { opacity: 0; transform: scale(0.4); }
   to { opacity: 0.6; transform: scale(0.9); }
 }
 @keyframes glow {
-  to { box-shadow: inset 0 0 0 5px #ffeb3b; filter: brightness(1.12); }
+  to { box-shadow: inset 0 0 0 5px var(--puffin); filter: brightness(1.12); }
 }
