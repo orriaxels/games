@@ -134,6 +134,8 @@ button { font-family: inherit; cursor: pointer; }
 .cell.open { background: var(--dirt-1); }
 .cell.open.alt { background: var(--dirt-2); }
 .cell.boom { background: #e53935; }
+.cell.peek { box-shadow: inset 0 0 0 3px #ffeb3b; animation: glow 0.5s ease-in-out 3 alternate; }
+.cell.peek-source { box-shadow: inset 0 0 0 3px #fff; }
 .cell span { font-size: calc(var(--cell) * 0.5); animation: pop 0.15s ease-out; }
 
 .n1 { color: #1976d2; }
@@ -212,6 +214,9 @@ button { font-family: inherit; cursor: pointer; }
 @keyframes pop {
   from { transform: scale(0.3); }
   to { transform: scale(1); }
+}
+@keyframes glow {
+  to { box-shadow: inset 0 0 0 5px #ffeb3b; filter: brightness(1.12); }
 }
 @keyframes fall {
   to { transform: translateY(110vh) rotate(360deg); }

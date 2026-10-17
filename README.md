@@ -4,6 +4,7 @@ Barnvænn námuleitarleikur sem er settur upp á síma sem vefapp (PWA). Engin a
 
 - **Ýttu** til að grafa, **haltu inni** til að flagga (eða skiptu stóra takkanum yfir í *Flagga* og ýttu til að flagga)
 - Fyrsta ýtingin er alltaf örugg
+- Ýttu á tölu til að sjá hvaða 8 reiti hún telur
 - Létt / Miðlungs / Erfitt, besti tími vistaður fyrir hvert stig
 - Virkar án nettengingar eftir uppsetningu
 

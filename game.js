@@ -39,6 +39,7 @@ function save(key, value) {
 // --- game setup ---
 
 function newGame() {
+  clearPeek();
   ({ cols, rows, mines: mineCount } = LEVELS[level]);
   cells = Array.from({ length: cols * rows }, () => ({ mine: false, n: 0, open: false, flag: false }));
   status = 'ready';
@@ -142,6 +143,24 @@ function draw(i) {
   } else {
     el.innerHTML = c.flag ? '<span>🚩</span>' : '';
   }
+}
+
+// Tapping an opened number briefly outlines the 8 squares it counts.
+const PEEK_MS = 1500;
+let peekTimer = null, peeked = [];
+
+function peek(i) {
+  if (!cells[i].n) return;
+  clearPeek();
+  peeked = [i, ...neighbors(i)];
+  peeked.forEach((j) => els[j].classList.add(j === i ? 'peek-source' : 'peek'));
+  peekTimer = setTimeout(clearPeek, PEEK_MS);
+}
+
+function clearPeek() {
+  clearTimeout(peekTimer);
+  peeked.forEach((j) => els[j]?.classList.remove('peek', 'peek-source'));
+  peeked = [];
 }
 
 function updateFlags() {
@@ -290,7 +309,9 @@ boardEl.addEventListener('pointerup', () => {
   const { i, long } = press;
   endPress();
   if (long) return;
-  if (flagMode) toggleFlag(i); else dig(i);
+  if (cells[i].open) peek(i);
+  else if (flagMode) toggleFlag(i);
+  else dig(i);
 });
 
 boardEl.addEventListener('pointercancel', endPress);
