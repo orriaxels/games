@@ -83,18 +83,12 @@
 .pad button[data-left]::after {
   content: attr(data-left);
   position: absolute;
-  top: 5px;
-  right: 7px;
-  min-width: 18px;
-  height: 18px;
-  padding: 0 4px;
-  border-radius: 999px;
-  background: var(--glacier);
-  color: #fff;
-  font-size: 12px;
-  font-weight: 700;
-  line-height: 18px;
-  text-align: center;
+  top: 3px;
+  right: 6px;
+  color: var(--night-soft);
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1;
 }
 .pad button.done::after { content: none; }
 .pad .erase { background: #e6ecf1; color: var(--night); }
