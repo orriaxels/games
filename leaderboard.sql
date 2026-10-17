@@ -25,3 +25,7 @@ create policy "anyone can add a score" on public.scores
   for insert to anon with check (true);
 
 grant select, insert on public.scores to anon;
+
+-- Row level security above already stops changes and deletes (there's no policy for
+-- them); this takes away the permission too, as a second lock.
+revoke update, delete, truncate on public.scores from anon, authenticated;
