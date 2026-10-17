@@ -449,7 +449,8 @@ function render() {
       el.classList.toggle('bad', s === 'bad');
     }
   });
-  $('solved').textContent = `${state.filter((s) => s === 'ok').length}/${state.filter((s) => s !== 'given').length}`;
+  // squares filled in out of squares to fill (filled, not necessarily right)
+  $('solved').textContent = `${blank.filter((b, i) => b && entries[i] !== '').length}/${blank.filter(Boolean).length}`;
 }
 
 function drawSigns() {
