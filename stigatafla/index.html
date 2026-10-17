@@ -12,18 +12,9 @@
   <link rel="manifest" href="../manifest.json">
   <link rel="icon" href="../icons/icon-192.png">
   <link rel="apple-touch-icon" href="../icons/apple-touch-icon.png">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gluten:wght@700;800&family=Lexend:wght@400;600;700&display=swap">
   <link rel="stylesheet" href="../common.css">
   <style>
-    .app { padding-top: 0; }
-    .yoke {
-      margin: 0 calc(-12px - env(safe-area-inset-right)) 4px calc(-12px - env(safe-area-inset-left));
-      height: calc(var(--yoke-h, 99px) + env(safe-area-inset-top));
-      background-position: center bottom;
-    }
-    .title { margin: 0; font-family: var(--display); font-size: var(--s3); font-weight: 800; line-height: 1; text-align: center; }
+    .title { margin: 0; font-family: var(--display); font-size: var(--s2); font-weight: 800; line-height: 1; letter-spacing: -0.02em; text-align: center; }
     .app > .levels { flex: none; }   /* shared style lets them grow, which is meant for a row */
     .games { border-radius: 24px; }
     .games button { display: grid; place-items: center; padding: 6px 0; border-radius: 20px; }
@@ -76,7 +67,6 @@
 </head>
 <body>
   <main class="app">
-    <div class="yoke" id="yoke" aria-hidden="true"></div>
     <header class="bar">
       <div class="bar-left"><a class="home" href="../" aria-label="Heim">‹</a></div>
       <h1 class="title">Stigatafla</h1>
@@ -129,7 +119,6 @@
       sudoku: ['--glacier', '--glacier-dark'],
       reiknigata: ['--crowberry', '--crowberry-dark'],
     };
-    knitBand($('yoke'), { b: '#ff8a1f', c: '#e9eef3' });
 
     async function load() {
       const [c, dark] = GAME_COLORS[game];

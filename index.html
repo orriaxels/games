@@ -12,24 +12,16 @@
   <link rel="manifest" href="manifest.json">
   <link rel="icon" href="icons/icon-192.png">
   <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gluten:wght@700;800&family=Lexend:wght@400;600;700&display=swap">
   <link rel="stylesheet" href="common.css">
   <style>
     body { display: flex; flex-direction: column; min-height: 100vh; min-height: 100dvh; height: auto; }
-    .yoke {
-      height: calc(var(--yoke-h, 99px) + env(safe-area-inset-top));
-      background-position: center bottom;
-    }
-
     .home-page {
       flex: 1;
       width: 100%;
       max-width: 520px;
       margin: 0 auto;
       padding:
-        22px
+        calc(env(safe-area-inset-top) + 28px)
         calc(env(safe-area-inset-right) + 18px)
         calc(env(safe-area-inset-bottom) + 24px)
         calc(env(safe-area-inset-left) + 18px);
@@ -45,7 +37,7 @@
       font-size: var(--s5);
       font-weight: 800;
       line-height: 1;
-      letter-spacing: -0.01em;
+      letter-spacing: -0.03em;
     }
     .player {
       padding: 7px 14px;
@@ -107,8 +99,6 @@
   </style>
 </head>
 <body>
-  <div class="yoke" id="yoke" aria-hidden="true"></div>
-
   <main class="home-page">
     <div class="masthead">
       <h1>Leikir</h1>
@@ -148,7 +138,6 @@
   <script src="leaderboard-config.js"></script>
   <script src="leaderboard.js"></script>
   <script>
-    knitBand($('yoke'), { b: '#ff8a1f', c: '#5e9a3a' });
 
     // Show each game's record, or that a puzzle is waiting to be finished.
     const ms = makeRecords(makeStore('ms-'));

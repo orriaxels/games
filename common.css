@@ -1,6 +1,6 @@
-/* Shared look for the start page and all the games: "lopapeysa".
-   Snow-white background, night-blue wool, one colour per game, puffin orange for records.
-   The knitted yoke band (drawn by knitBand() in common.js) is the one decorative element. */
+/* Shared look for the start page and all the games.
+   Snow-white background, night-blue text, one colour per game, puffin orange for records.
+   The phone's own font throughout. */
 :root {
   --snow: #edf2f6;
   --night: #1b2a4a;
@@ -20,8 +20,9 @@
   --game: var(--night);
   --game-dark: #0f1a33;
 
-  --display: 'Gluten', 'Comic Sans MS', system-ui, sans-serif;
-  --text: 'Lexend', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  /* the phone's own font: San Francisco on iPhone, Roboto on Android */
+  --text: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --display: var(--text);
 
   /* type scale, ratio 1.25 */
   --s-1: 14px;
@@ -111,15 +112,6 @@ button { font-family: inherit; color: inherit; cursor: pointer; }
     calc(env(safe-area-inset-right) + 12px)
     calc(env(safe-area-inset-bottom) + 12px)
     calc(env(safe-area-inset-left) + 12px);
-}
-
-/* The knitted band */
-.yoke {
-  flex: none;
-  height: var(--yoke-h, 99px);
-  background-color: var(--night);
-  background-repeat: repeat-x;
-  background-position: center top;
 }
 
 /* Top bar: [home + stat] [centre] [stat] */
