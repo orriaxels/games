@@ -1,5 +1,5 @@
 'use strict';
-// Námuleit (Minesweeper). Uses helpers from ../common.js.
+// Minesweeper. Uses helpers from ../common.js.
 
 const LEVELS = {
   easy:   { cols: 8,  rows: 8,  mines: 8 },

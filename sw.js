@@ -1,6 +1,6 @@
 // Offline support. Serves from cache straight away and refreshes the cache in the
 // background, so a new version shows up the next time the app is opened.
-const CACHE = 'leikir-v1';
+const CACHE = 'leikir-v2';
 const ASSETS = [
   './',
   'index.html',
@@ -12,6 +12,7 @@ const ASSETS = [
   'icons/apple-touch-icon.png',
   'icons/namuleit.png',
   'icons/sudoku.png',
+  'icons/reiknigata.png',
   'namuleit/',
   'namuleit/index.html',
   'namuleit/style.css',
@@ -20,6 +21,10 @@ const ASSETS = [
   'sudoku/index.html',
   'sudoku/style.css',
   'sudoku/game.js',
+  'reiknigata/',
+  'reiknigata/index.html',
+  'reiknigata/style.css',
+  'reiknigata/game.js',
 ];
 
 self.addEventListener('install', (e) => {

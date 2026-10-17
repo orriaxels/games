@@ -28,8 +28,8 @@
       box-shadow: 0 6px 0 rgba(0, 0, 0, 0.25);
     }
     .game:active { transform: translateY(3px); box-shadow: 0 3px 0 rgba(0, 0, 0, 0.25); }
-    .game img { width: 96px; height: 96px; border-radius: 20px; flex: none; }
-    .game h2 { margin: 0 0 4px; font-size: 28px; }
+    .game img { width: 84px; height: 84px; border-radius: 18px; flex: none; }
+    .game h2 { margin: 0 0 4px; font-size: 25px; }
     .game p { margin: 0; font-size: 16px; color: #666; }
     .game .go { margin-left: auto; font-size: 34px; color: #bbb; }
   </style>
@@ -40,7 +40,7 @@
     <a class="game" href="namuleit/">
       <img src="icons/namuleit.png" alt="">
       <div>
-        <h2>Námuleit</h2>
+        <h2>Minesweeper</h2>
         <p id="ms-note">Finndu allar sprengjurnar</p>
       </div>
       <span class="go" aria-hidden="true">›</span>
@@ -53,21 +53,31 @@
       </div>
       <span class="go" aria-hidden="true">›</span>
     </a>
+    <a class="game" href="reiknigata/">
+      <img src="icons/reiknigata.png" alt="">
+      <div>
+        <h2>Reiknigáta</h2>
+        <p id="rg-note">Krossgáta með tölum</p>
+      </div>
+      <span class="go" aria-hidden="true">›</span>
+    </a>
   </main>
 
   <script src="common.js"></script>
   <script>
-    // Show each game's record, or that a sudoku is waiting to be finished.
+    // Show each game's record, or that a puzzle is waiting to be finished.
     const ms = makeRecords(makeStore('ms-'));
     const msBest = Object.keys(LEVEL_NAMES).find((lv) => ms.best(lv));
     if (msBest) $('ms-note').textContent = `🏆 ${LEVEL_NAMES[msBest]}: ${ms.best(msBest)} sek`;
 
-    const sdStore = makeStore('sd-');
-    const sd = makeRecords(sdStore);
-    const current = sdStore.getJSON('current', null);
-    const sdBest = Object.keys(LEVEL_NAMES).find((lv) => sd.best(lv));
-    if (current && LEVEL_NAMES[current.level]) $('sd-note').textContent = `▶ Halda áfram (${LEVEL_NAMES[current.level]})`;
-    else if (sdBest) $('sd-note').textContent = `🏆 ${LEVEL_NAMES[sdBest]}: ${clock(sd.best(sdBest))}`;
+    for (const prefix of ['sd', 'rg']) {
+      const st = makeStore(prefix + '-');
+      const rec = makeRecords(st);
+      const current = st.getJSON('current', null);
+      const best = Object.keys(LEVEL_NAMES).find((lv) => rec.best(lv));
+      if (current && LEVEL_NAMES[current.level]) $(prefix + '-note').textContent = `▶ Halda áfram (${LEVEL_NAMES[current.level]})`;
+      else if (best) $(prefix + '-note').textContent = `🏆 ${LEVEL_NAMES[best]}: ${clock(rec.best(best))}`;
+    }
 
     registerServiceWorker('sw.js');
   </script>

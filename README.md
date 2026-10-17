@@ -2,9 +2,9 @@
 
 Barnvænir leikir á íslensku sem eru settir upp á síma sem vefapp (PWA). Engin app-verslun nauðsynleg.
 
-Upphafssíðan býður upp á tvo leiki:
+Upphafssíðan býður upp á þrjá leiki:
 
-**Námuleit** (`namuleit/`)
+**Minesweeper** (`namuleit/`)
 - **Ýttu** til að grafa, **haltu inni** til að flagga (eða skiptu stóra takkanum yfir í *Flagga*)
 - Fyrsta ýtingin er alltaf örugg
 - Ýttu á tölu til að sjá hvaða 8 reiti hún telur
@@ -14,7 +14,14 @@ Upphafssíðan býður upp á tvo leiki:
 - Rangar tölur verða rauðar og eru taldar sem villur
 - Þraut sem er ekki búin vistast, svo það má loka appinu og halda áfram seinna
 
-Báðir leikir eru með Létt / Miðlungs / Erfitt og 🏆 takka sem sýnir metið á hverju stigi og síðustu leiki.
+**Reiknigáta** (`reiknigata/`)
+- Krossgáta með tölum: 3 jöfnur lárétt og 3 lóðrétt, fylltu í auðu reitina
+- Veldu hvaða merki eru með: + − × ÷ (a.m.k. eitt)
+- Þegar jafna er fyllt verða merkin græn ef hún er rétt en rauð ef hún er röng
+- Hægt er að leysa hverja gátu eina jöfnu í einu og hún hefur bara eina lausn
+- Létt: tölur upp í 20, 3 auðir reitir · Miðlungs: upp í 50, 4 auðir · Erfitt: upp í 100, 5 auðir
+
+Allir leikirnir eru með Létt / Miðlungs / Erfitt og 🏆 takka sem sýnir metið á hverju stigi og síðustu leiki.
 Metin eru geymd í vafranum á hverjum síma fyrir sig (ekki á netinu), svo hvert barn á sín eigin met.
 Ef vafragögnum (website data) er eytt í stillingum símans hverfa metin líka.
 
@@ -37,7 +44,7 @@ Símarnir ná í nýju útgáfuna næst þegar appið er opnað, eða þar á ef
 
 - `index.html`: upphafssíðan
 - `common.css`, `common.js`: útlit og hjálparföll sem allar síðurnar nota (met, sprettigluggar, geymsla)
-- `namuleit/`, `sudoku/`: leikirnir
+- `namuleit/` (Minesweeper), `sudoku/`, `reiknigata/`: leikirnir
 - `sw.js`, `manifest.json`: uppsetning og offline-virkni
 
 ## Keyra á eigin tölvu
