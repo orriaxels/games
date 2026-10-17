@@ -205,6 +205,25 @@ button { font-family: inherit; cursor: pointer; }
 .history .when { color: #888; font-size: 14px; white-space: nowrap; }
 .history .empty { color: #888; justify-content: center; }
 
+/* Leaderboard bits: place in the win popup, and the name form */
+#result-board:empty { display: none; }
+#result-board { margin: -8px 0 18px; }
+.board-line { margin: 0; font-size: 17px; font-weight: 700; color: #5d4037; }
+.name-form { display: grid; gap: 10px; }
+.name-form p { margin: 0; font-size: 16px; }
+.name-form input {
+  width: 100%;
+  padding: 12px 14px;
+  border: 2px solid #ccc;
+  border-radius: 14px;
+  font: inherit;
+  font-size: 20px;
+  text-align: center;
+  -webkit-user-select: text;
+  user-select: text;
+}
+.name-form input:focus { outline: none; border-color: var(--bg); }
+
 .confetti {
   position: fixed;
   top: -40px;

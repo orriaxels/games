@@ -101,6 +101,7 @@ function showResult(emoji, title, text) {
   $('result-emoji').textContent = emoji;
   $('result-title').textContent = title;
   $('result-text').textContent = text;
+  $('result-board')?.replaceChildren();   // filled by lbAfterWin() after a win
   $('overlay').hidden = false;
 }
 

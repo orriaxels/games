@@ -23,7 +23,7 @@
         <div class="stat" aria-label="Tími"><span aria-hidden="true">⏱️</span> <span id="time">0:00</span></div>
       </div>
       <button id="new" class="new" type="button" aria-label="Ný þraut">🔄</button>
-      <div class="stat" aria-label="Villur"><span aria-hidden="true">❌</span> <span id="mistakes">0</span></div>
+      <div class="stat" aria-label="Útfylltir reitir"><span aria-hidden="true">✏️</span> <span id="filled">0/81</span></div>
     </header>
 
     <div class="row">
@@ -51,7 +51,7 @@
       <button type="button" data-digit="9">9</button>
       <button type="button" data-digit="0" class="erase" aria-label="Stroka út">⌫</button>
     </div>
-    <p class="hint">Veldu reit og ýttu svo á tölu</p>
+    <p class="hint" id="hint">Veldu reit og ýttu svo á tölu</p>
   </main>
 
   <div class="overlay" id="overlay" hidden>
@@ -59,6 +59,7 @@
       <div class="big" id="result-emoji">🎉</div>
       <h2 id="result-title">Þú kláraðir!</h2>
       <p id="result-text"></p>
+      <div id="result-board"></div>
       <button id="again" class="again" type="button">Ný þraut</button>
     </div>
   </div>
@@ -89,6 +90,8 @@
   </div>
 
   <script src="../common.js"></script>
+  <script src="../leaderboard-config.js"></script>
+  <script src="../leaderboard.js"></script>
   <script src="game.js"></script>
 </body>
 </html>

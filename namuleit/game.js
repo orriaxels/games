@@ -211,8 +211,12 @@ function finishGame(won, delay) {
   const id = gameId;
   setTimeout(() => {
     if (id !== gameId) return;
-    if (won) showResult('🎉', 'Þú vannst!', text);
-    else showResult('💣', 'Búmm!', text);
+    if (won) {
+      showResult('🎉', 'Þú vannst!', text);
+      lbAfterWin('minesweeper', level, time);
+    } else {
+      showResult('💣', 'Búmm!', text);
+    }
   }, delay);
 }
 

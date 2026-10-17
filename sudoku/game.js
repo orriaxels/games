@@ -9,10 +9,13 @@ const records = makeRecords(store);
 const boardEl = $('board');
 const wrapEl = $('wrap');
 const timeEl = $('time');
-const mistakesEl = $('mistakes');
+const filledEl = $('filled');
+const HINT = 'Veldu reit og ýttu svo á tölu';
 
 // Current game. Arrays have 81 entries, row by row; 0 means empty.
-let level, puzzle, solution, entries, mistakes, done;
+// Wrong numbers aren't shown straight away: only once every square is filled do the
+// wrong ones get `marked` (red) and counted as mistakes. Changing a square unmarks it.
+let level, puzzle, solution, entries, marked, mistakes, done;
 let selected = -1;
 let elapsedMs = 0, runningSince = 0, ticker = null;
 let els = [];
@@ -97,10 +100,12 @@ function newPuzzle(lv) {
   store.set('level', level);
   ({ puzzle, solution } = makePuzzle(level));
   entries = new Array(81).fill(0);
+  marked = new Array(81).fill(false);
   mistakes = 0;
   done = false;
   selected = -1;
   elapsedMs = 0;
+  $('hint').textContent = HINT;
   $('overlay').hidden = true;
   $('confirm').hidden = true;
   buildBoard();
@@ -110,7 +115,7 @@ function newPuzzle(lv) {
 
 function saveGame() {
   if (done) { store.remove('current'); return; }
-  store.setJSON('current', { level, puzzle, solution, entries, mistakes, elapsed: currentMs() });
+  store.setJSON('current', { level, puzzle, solution, entries, marked, mistakes, elapsed: currentMs() });
 }
 
 function loadGame() {
@@ -118,6 +123,7 @@ function loadGame() {
   const ok = (a) => Array.isArray(a) && a.length === 81;
   if (!g || !GIVENS[g.level] || !ok(g.puzzle) || !ok(g.solution) || !ok(g.entries)) return false;
   ({ level, puzzle, solution, entries } = g);
+  marked = ok(g.marked) ? g.marked.map(Boolean) : new Array(81).fill(false);
   mistakes = Number(g.mistakes) || 0;
   elapsedMs = Number(g.elapsed) || 0;
   done = false;
@@ -192,25 +198,26 @@ function render() {
   const sel = selected;
   const selVal = sel >= 0 ? value(sel) : 0;
   const counts = new Array(10).fill(0);
+  let filled = 0;
   for (let i = 0; i < 81; i++) {
     const v = value(i);
-    if (v && v === solution[i]) counts[v]++;
+    if (v) { counts[v]++; filled++; }
     const el = els[i];
     el.textContent = v || '';
     el.classList.toggle('given', !!puzzle[i]);
-    el.classList.toggle('wrong', !!entries[i] && entries[i] !== solution[i]);
+    el.classList.toggle('wrong', marked[i]);
     el.classList.toggle('sel', i === sel);
     const peer = sel >= 0 && i !== sel &&
       (Math.floor(i / 9) === Math.floor(sel / 9) || i % 9 === sel % 9 || box(i) === box(sel));
     el.classList.toggle('peer', peer);
     el.classList.toggle('same', !!selVal && i !== sel && v === selVal);
   }
-  // A number is greyed out once all nine are in place.
+  // A number is greyed out once nine of it are on the board (right or wrong).
   document.querySelectorAll('#pad [data-digit]').forEach((b) => {
     const d = Number(b.dataset.digit);
-    b.classList.toggle('done', d > 0 && counts[d] === 9);
+    b.classList.toggle('done', d > 0 && counts[d] >= 9);
   });
-  mistakesEl.textContent = mistakes;
+  filledEl.textContent = `${filled}/81`;
 }
 
 function updateBest() {
@@ -231,16 +238,27 @@ function place(d) {
   if (done || selected < 0 || puzzle[selected]) return;
   if (entries[selected] === d) return;
   entries[selected] = d;
-  if (d && d !== solution[selected]) {
-    mistakes++;
-    buzz([60, 40, 60]);
-  }
+  marked[selected] = false;
   els[selected].classList.remove('placed');
   void els[selected].offsetWidth;   // restart the pop animation
   if (d) els[selected].classList.add('placed');
+
+  if (solution.every((v, i) => value(i) === v)) {
+    render();
+    return win();
+  }
+  // Every square filled but something's wrong: now show which ones.
+  if (solution.every((_, i) => value(i))) {
+    const wrong = entries.map((v, i) => !!v && v !== solution[i]);
+    mistakes += wrong.filter((w, i) => w && !marked[i]).length;   // only ones not already shown
+    marked = wrong;
+    buzz([60, 40, 60]);
+    $('hint').textContent = 'Næstum! Rauðu tölurnar eru rangar.';
+  } else if (!marked.some(Boolean)) {
+    $('hint').textContent = HINT;
+  }
   render();
-  if (solution.every((v, i) => value(i) === v)) win();
-  else saveGame();
+  saveGame();
 }
 
 function win() {
@@ -259,7 +277,9 @@ function win() {
   let text = isRecord ? `${clock(time)} — nýtt met! 🏆` : `${clock(time)} · Metið er ${clock(best)}`;
   text += mistakes ? ` · ${errors(mistakes)}` : ' · engin villa! ⭐';
   setTimeout(() => {
-    if (done) showResult('🎉', 'Þú kláraðir!', text);
+    if (!done) return;
+    showResult('🎉', 'Þú kláraðir!', text);
+    lbAfterWin('sudoku', level, time);
   }, 600);
 }
 
@@ -282,7 +302,7 @@ $('pad').addEventListener('click', (e) => {
 
 // Keyboard on a computer: arrows to move, 1-9 to fill, Backspace to erase.
 document.addEventListener('keydown', (e) => {
-  if (done) return;
+  if (done || e.target.closest('input')) return;
   const moves = { ArrowUp: -9, ArrowDown: 9, ArrowLeft: -1, ArrowRight: 1 };
   if (e.key in moves) {
     e.preventDefault();

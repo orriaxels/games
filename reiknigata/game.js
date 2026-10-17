@@ -520,7 +520,9 @@ function win() {
   confetti();
   const text = isRecord ? `${clock(time)} — nýtt met! 🏆` : `${clock(time)} · Metið er ${clock(best)}`;
   setTimeout(() => {
-    if (done) showResult('🎉', 'Þú kláraðir!', text);
+    if (!done) return;
+    showResult('🎉', 'Þú kláraðir!', text);
+    lbAfterWin('reiknigata', level, time);
   }, 600);
 }
 
@@ -540,6 +542,7 @@ $('pad').addEventListener('click', (e) => {
 
 // Keyboard on a computer: digits, Backspace, Enter/Tab for the next square.
 document.addEventListener('keydown', (e) => {
+  if (e.target.closest('input')) return;   // typing a name
   if (/^[0-9]$/.test(e.key)) key(e.key);
   else if (e.key === 'Backspace' || e.key === 'Delete') key('back');
   else if (e.key === 'Enter' || e.key === 'Tab' || e.key === 'ArrowRight') { e.preventDefault(); key('next'); }

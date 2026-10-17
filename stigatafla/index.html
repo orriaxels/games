@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="is">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+  <title>Stigatafla</title>
+  <meta name="theme-color" content="#4a752c">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Leikir">
+  <link rel="manifest" href="../manifest.json">
+  <link rel="icon" href="../icons/icon-192.png">
+  <link rel="apple-touch-icon" href="../icons/apple-touch-icon.png">
+  <link rel="stylesheet" href="../common.css">
+  <style>
+    .title { margin: 0; font-size: 24px; text-align: center; }
+    .app > .levels { flex: none; }   /* shared style lets them grow, which is meant for a row */
+    .refresh {
+      width: 44px; height: 44px; border: none; border-radius: 50%;
+      background: rgba(0, 0, 0, 0.2); color: #fff; font-size: 22px;
+    }
+    .me {
+      align-self: center;
+      padding: 8px 16px;
+      border: none;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.9);
+      color: #333;
+      font-size: 16px;
+      font-weight: 700;
+    }
+    .list-wrap {
+      flex: 1;
+      min-height: 0;
+      overflow-y: auto;
+      border-radius: 20px;
+      background: #fff;
+      color: #333;
+    }
+    .list { margin: 0; padding: 6px 0; list-style: none; }
+    .list li {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 18px;
+      border-top: 1px solid #eee;
+      font-size: 19px;
+    }
+    .list li:first-child { border-top: none; }
+    .list .place { width: 36px; text-align: center; font-weight: 800; font-size: 22px; }
+    .list .who { flex: 1; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .list .time { font-weight: 800; font-variant-numeric: tabular-nums; }
+    .list li.mine { background: #fff8e1; }
+    .status { padding: 28px 18px; text-align: center; color: #777; font-size: 17px; }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <header class="bar">
+      <div class="bar-left"><a class="home" href="../" aria-label="Heim">‹</a></div>
+      <h1 class="title">🏅 Stigatafla</h1>
+      <button id="refresh" class="refresh" type="button" aria-label="Uppfæra">🔄</button>
+    </header>
+
+    <button id="me" class="me" type="button"></button>
+
+    <nav class="levels" id="games">
+      <button type="button" data-game="minesweeper">Minesweeper</button>
+      <button type="button" data-game="sudoku">Sudoku</button>
+      <button type="button" data-game="reiknigata">Reiknigáta</button>
+    </nav>
+    <nav class="levels" id="levels">
+      <button type="button" data-level="easy">Létt</button>
+      <button type="button" data-level="medium">Miðlungs</button>
+      <button type="button" data-level="hard">Erfitt</button>
+    </nav>
+
+    <div class="list-wrap">
+      <ol class="list" id="list"></ol>
+      <div class="status" id="status" hidden></div>
+    </div>
+  </main>
+
+  <div class="overlay" id="name" hidden>
+    <div class="card" id="name-card"></div>
+  </div>
+
+  <script src="../common.js"></script>
+  <script src="../leaderboard-config.js"></script>
+  <script src="../leaderboard.js"></script>
+  <script>
+    const view = makeStore('lb-');
+    let game = view.get('view-game', 'minesweeper');
+    let level = view.get('view-level', 'easy');
+    if (!GAME_NAMES[game]) game = 'minesweeper';
+    if (!LEVEL_NAMES[level]) level = 'easy';
+    let loadId = 0;
+
+    function status(text) {
+      $('list').replaceChildren();
+      $('status').textContent = text;
+      $('status').hidden = false;
+    }
+
+    async function load() {
+      document.querySelectorAll('#games button').forEach((b) => b.classList.toggle('active', b.dataset.game === game));
+      document.querySelectorAll('#levels button').forEach((b) => b.classList.toggle('active', b.dataset.level === level));
+      $('me').textContent = playerName() ? `👤 ${playerName()} ✏️` : '👤 Skrifaðu nafnið þitt';
+      if (!lbOn()) return status('Stigataflan hefur ekki verið sett upp enn.');
+
+      const id = ++loadId;
+      status('Sæki…');
+      await lbFlush();
+      let board;
+      try {
+        board = await lbBoard(game, level);
+      } catch {
+        if (id === loadId) status('Næ ekki í stigatöfluna. Er netið tengt?');
+        return;
+      }
+      if (id !== loadId) return;   // a newer tab was picked meanwhile
+      if (!board.length) return status('Enginn hefur klárað þetta ennþá. Verður þú fyrst/ur?');
+
+      $('status').hidden = true;
+      const me = playerName().toLowerCase();
+      const medals = ['🥇', '🥈', '🥉'];
+      $('list').replaceChildren(...board.map((row, i) => {
+        const li = document.createElement('li');
+        if (row.player.trim().toLowerCase() === me) li.className = 'mine';
+        const place = document.createElement('span');
+        place.className = 'place';
+        place.textContent = medals[i] || i + 1;
+        const who = document.createElement('span');
+        who.className = 'who';
+        who.textContent = row.player;
+        const time = document.createElement('span');
+        time.className = 'time';
+        time.textContent = formatTime(game, row.seconds);
+        li.append(place, who, time);
+        return li;
+      }));
+    }
+
+    $('games').addEventListener('click', (e) => {
+      const b = e.target.closest('[data-game]');
+      if (!b) return;
+      game = b.dataset.game;
+      view.set('view-game', game);
+      load();
+    });
+    $('levels').addEventListener('click', (e) => {
+      const b = e.target.closest('[data-level]');
+      if (!b) return;
+      level = b.dataset.level;
+      view.set('view-level', level);
+      load();
+    });
+    $('refresh').addEventListener('click', load);
+    $('me').addEventListener('click', () => {
+      $('name-card').replaceChildren(nameForm(() => { $('name').hidden = true; load(); }, 'Hvað heitir þú?'));
+      $('name').hidden = false;
+      $('name-card').querySelector('input').focus();
+    });
+
+    load();
+    registerServiceWorker('../sw.js');
+  </script>
+</body>
+</html>

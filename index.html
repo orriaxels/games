@@ -32,6 +32,18 @@
     .game h2 { margin: 0 0 4px; font-size: 25px; }
     .game p { margin: 0; font-size: 16px; color: #666; }
     .game .go { margin-left: auto; font-size: 34px; color: #bbb; }
+    .leaderboard {
+      align-self: center;
+      padding: 14px 28px;
+      border-radius: 999px;
+      background: #ffd54f;
+      color: #5d4037;
+      font-size: 20px;
+      font-weight: 800;
+      text-decoration: none;
+      box-shadow: 0 5px 0 rgba(0, 0, 0, 0.25);
+    }
+    .leaderboard[hidden] { display: none; }
   </style>
 </head>
 <body>
@@ -61,9 +73,12 @@
       </div>
       <span class="go" aria-hidden="true">›</span>
     </a>
+    <a class="leaderboard" id="leaderboard" href="stigatafla/" hidden>🏅 Stigatafla</a>
   </main>
 
   <script src="common.js"></script>
+  <script src="leaderboard-config.js"></script>
+  <script src="leaderboard.js"></script>
   <script>
     // Show each game's record, or that a puzzle is waiting to be finished.
     const ms = makeRecords(makeStore('ms-'));
@@ -78,6 +93,8 @@
       if (current && LEVEL_NAMES[current.level]) $(prefix + '-note').textContent = `▶ Halda áfram (${LEVEL_NAMES[current.level]})`;
       else if (best) $(prefix + '-note').textContent = `🏆 ${LEVEL_NAMES[best]}: ${clock(rec.best(best))}`;
     }
+
+    $('leaderboard').hidden = !lbOn();
 
     registerServiceWorker('sw.js');
   </script>

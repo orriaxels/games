@@ -1,6 +1,6 @@
 // Offline support. When online, always fetch the newest files (skipping the browser's
 // own cache) and keep a copy; when offline or very slow, use the copy instead.
-const CACHE = 'leikir-v6';
+const CACHE = 'leikir-v7';
 const NETWORK_TIMEOUT_MS = 4000;
 const ASSETS = [
   './',
@@ -26,6 +26,10 @@ const ASSETS = [
   'reiknigata/index.html',
   'reiknigata/style.css',
   'reiknigata/game.js',
+  'leaderboard-config.js',
+  'leaderboard.js',
+  'stigatafla/',
+  'stigatafla/index.html',
 ];
 
 self.addEventListener('install', (e) => {

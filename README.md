@@ -11,7 +11,7 @@ Upphafssíðan býður upp á þrjá leiki:
 
 **Sudoku** (`sudoku/`)
 - Veldu reit og ýttu svo á tölu, ⌫ strokar út
-- Rangar tölur verða rauðar og eru taldar sem villur
+- Rangar tölur sjást ekki strax: þegar allir reitir eru fylltir verða röngu tölurnar rauðar og eru taldar sem villur
 - Þraut sem er ekki búin vistast, svo það má loka appinu og halda áfram seinna
 
 **Reiknigáta** (`reiknigata/`)
@@ -26,6 +26,21 @@ Upphafssíðan býður upp á þrjá leiki:
 Allir leikirnir eru með Létt / Miðlungs / Erfitt og 🏆 takka sem sýnir metið á hverju stigi og síðustu leiki.
 Metin eru geymd í vafranum á hverjum síma fyrir sig (ekki á netinu), svo hvert barn á sín eigin met.
 Ef vafragögnum (website data) er eytt í stillingum símans hverfa metin líka.
+
+## Stigatafla (sameiginleg)
+
+Krakkarnir geta keppt sín á milli: hver sigur sendir tímann á sameiginlega stigatöflu
+(🏅 takkinn á upphafssíðunni). Hún er geymd í ókeypis [Supabase](https://supabase.com) gagnagrunni.
+
+Uppsetning (einu sinni):
+1. Búðu til aðgang og nýtt verkefni (project) á supabase.com.
+2. **SQL Editor** → límdu inn `leaderboard.sql` → **Run**.
+3. **Project Settings → API Keys**: afritaðu slóðina (Project URL) og **publishable** lykilinn
+   (eða eldri „anon public“ lykilinn) í `leaderboard-config.js`.
+   Aldrei setja **secret** / **service_role** lykilinn þangað, skráin er opinber.
+
+Lykillinn má sjást, en þá getur hver sem er lesið nöfnin og bætt við tímum. Notið gælunöfn.
+Hægt er að eyða tímum í **Table Editor** í Supabase.
 
 ## Setja upp á símunum
 
