@@ -1,6 +1,7 @@
-// Offline support. Serves from cache straight away and refreshes the cache in the
-// background, so a new version shows up the next time the app is opened.
-const CACHE = 'leikir-v3';
+// Offline support. When online, always fetch the newest files (skipping the browser's
+// own cache) and keep a copy; when offline or very slow, use the copy instead.
+const CACHE = 'leikir-v5';
+const NETWORK_TIMEOUT_MS = 4000;
 const ASSETS = [
   './',
   'index.html',
@@ -28,7 +29,11 @@ const ASSETS = [
 ];
 
 self.addEventListener('install', (e) => {
-  e.waitUntil(caches.open(CACHE).then((c) => c.addAll(ASSETS)).then(() => self.skipWaiting()));
+  e.waitUntil(
+    caches.open(CACHE)
+      .then((c) => c.addAll(ASSETS.map((url) => new Request(url, { cache: 'reload' }))))
+      .then(() => self.skipWaiting())
+  );
 });
 
 self.addEventListener('activate', (e) => {
@@ -40,17 +45,21 @@ self.addEventListener('activate', (e) => {
 });
 
 self.addEventListener('fetch', (e) => {
-  if (e.request.method !== 'GET') return;
-  e.respondWith(
-    caches.open(CACHE).then(async (cache) => {
+  const url = new URL(e.request.url);
+  if (e.request.method !== 'GET' || url.origin !== location.origin) return;
+  e.respondWith((async () => {
+    const cache = await caches.open(CACHE);
+    const network = fetch(new Request(url.href, { cache: 'no-cache', credentials: 'same-origin' }))
+      .then((res) => {
+        if (res.ok) cache.put(e.request, res.clone());
+        return res;
+      });
+    const timeout = new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), NETWORK_TIMEOUT_MS));
+    try {
+      return await Promise.race([network, timeout]);
+    } catch {
       const cached = await cache.match(e.request, { ignoreSearch: true });
-      const network = fetch(e.request)
-        .then((res) => {
-          if (res.ok) cache.put(e.request, res.clone());
-          return res;
-        })
-        .catch(() => cached);
       return cached || network;
-    })
-  );
+    }
+  })());
 });

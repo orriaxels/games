@@ -38,9 +38,10 @@ Opnaðu appið einu sinni með nettengingu. Eftir það virkar það án nets.
 
 ## Uppfærslur
 
-Ýttu breytingum á GitHub og hækkaðu `CACHE` í `sw.js` (t.d. `leikir-v2`).
+Ýttu breytingum á GitHub og hækkaðu `CACHE` í `sw.js` (t.d. `leikir-v6`).
 Ný skrá þarf líka að fara í `ASSETS` listann í `sw.js` svo hún virki án nets.
-Símarnir ná í nýju útgáfuna næst þegar appið er opnað, eða þar á eftir.
+Þegar síminn er á netinu sækir appið alltaf nýjustu skrárnar, og þegar það kemur
+aftur á skjáinn athugar það hvort ný útgáfa sé komin og endurhleður sig þá sjálft.
 
 ## Skipulag
 

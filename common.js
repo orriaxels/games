@@ -151,8 +151,23 @@ document.addEventListener('click', (e) => {
 // Ask the browser not to clear our storage when the phone runs low on space.
 if (navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(() => {});
 
+// Registers offline support and keeps the app up to date: checks for a new version
+// whenever the app comes back on screen, and reloads once a new version takes over.
+// (Sudoku and Reiknigáta save on 'pagehide', so a reload doesn't lose a puzzle.)
 function registerServiceWorker(path) {
-  if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => navigator.serviceWorker.register(path).catch(() => {}));
-  }
+  if (!('serviceWorker' in navigator)) return;
+  const hadController = !!navigator.serviceWorker.controller;
+  let reloading = false;
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    if (!hadController || reloading) return;   // first install: nothing old to replace
+    reloading = true;
+    location.reload();
+  });
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register(path).then((reg) => {
+      document.addEventListener('visibilitychange', () => {
+        if (!document.hidden) reg.update().catch(() => {});
+      });
+    }).catch(() => {});
+  });
 }
