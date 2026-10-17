@@ -48,6 +48,7 @@
   box-shadow: inset 0 0 0 2px var(--wool);
 }
 .signs button.on { background: var(--crowberry); color: #fff; box-shadow: 0 3px 0 var(--crowberry-dark); }
+.signs button:active { transform: translateY(2px); }
 .signs button.shake { animation: shake 0.3s; }
 
 /* Board: numbers, signs and = on a grid of tiles (5x5 up to 9x9).
@@ -82,7 +83,7 @@
 }
 .num.blank.filled { border-style: solid; border-color: #c9aee3; background: #fff; }
 .num.sel { background: #ffe3c4; border: max(2px, calc(var(--tile) * 0.05)) solid var(--puffin); }
-.num.pop { animation: pop 0.15s ease-out; }
+.num.pop { animation: pop 150ms var(--ease-out); }
 
 .op, .eq {
   place-self: center;

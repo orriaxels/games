@@ -48,7 +48,8 @@
 .cell.sel { background: #ffd8ad; }
 .cell.wrong { color: var(--flag); background: #fde3e4; }
 .cell.sel.wrong { background: #fbc9cb; }
-.cell.placed { animation: pop 0.15s ease-out; }
+.cell.placed { animation: pop 150ms var(--ease-out); }
+.cell:active { filter: brightness(0.94); }   /* the square answers the finger before the tap ends */
 
 /* Number pad */
 .pad {

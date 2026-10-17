@@ -33,26 +33,43 @@
   --s5: 52px;
 
   --edge: 0 4px 0;   /* toy-block bottom edge, coloured per element */
+
+  /* motion: one strong ease-out for everything that responds to a tap */
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --press: 140ms;
 }
 
 * { box-sizing: border-box; }
+
+html {
+  -webkit-tap-highlight-color: transparent;
+  -webkit-text-size-adjust: 100%;   /* no font inflation in landscape */
+}
 
 html, body {
   margin: 0;
   height: 100%;
   background: var(--snow);
-  overscroll-behavior: none;
+  overscroll-behavior: none;        /* no pull-to-refresh or page bounce: this is an app */
 }
 
 body {
   font-family: var(--text);
   font-size: var(--s0);
   color: var(--night);
+  touch-action: manipulation;       /* no double-tap zoom, no tap delay; pinch zoom still works */
+}
+
+/* The game screens are all controls, and long-press is a game move (flagging), so nothing
+   there should select or pop a callout. Content people may want to copy stays selectable. */
+.app, .home-page, button, a, img {
   -webkit-user-select: none;
   user-select: none;
   -webkit-touch-callout: none;
-  -webkit-tap-highlight-color: transparent;
-  touch-action: manipulation;
+}
+.history, .records td, .card p, .list, .status {
+  -webkit-user-select: text;
+  user-select: text;
 }
 
 /* Behind the phone's clock and battery (iPhone draws them in white over the page) */
@@ -69,6 +86,16 @@ body::before {
 }
 
 button { font-family: inherit; color: inherit; cursor: pointer; }
+
+/* Everything pressable sinks onto its bottom edge at once (:active has no delay) and
+   springs back on release with the same short ease-out. */
+.home, .face, .new, .trophy, .again, .tile, .leaderboard, .refresh, .mode,
+.pad button, .signs button, .levels button {
+  transition:
+    transform var(--press) var(--ease-out),
+    box-shadow var(--press) var(--ease-out),
+    background-color var(--press) ease;
+}
 :focus-visible { outline: 3px solid var(--puffin); outline-offset: 2px; }
 
 .app {
@@ -174,6 +201,7 @@ button { font-family: inherit; color: inherit; cursor: pointer; }
   font-size: 16px;
   font-weight: 600;
 }
+.levels button:active:not(.active) { background: rgba(27, 42, 74, 0.1); }   /* feedback the moment a finger lands */
 .levels button.active {
   background: var(--game);
   color: #fff;
@@ -193,6 +221,7 @@ button { font-family: inherit; color: inherit; cursor: pointer; }
   white-space: nowrap;
   box-shadow: var(--edge) var(--puffin-dark);
 }
+.player:active, .me:active { background: #e6ecf1; }   /* the name chips on the start page and leaderboard */
 .trophy:active { transform: translateY(3px); box-shadow: 0 1px 0 var(--puffin-dark); }
 
 .board-wrap {
@@ -219,6 +248,7 @@ button { font-family: inherit; color: inherit; cursor: pointer; }
   display: grid;
   place-items: center;
   background: rgba(27, 42, 74, 0.55);
+  animation: fade 180ms ease-out;
 }
 .overlay[hidden] { display: none; }
 
@@ -230,7 +260,7 @@ button { font-family: inherit; color: inherit; cursor: pointer; }
   color: var(--night);
   text-align: center;
   box-shadow: 0 8px 0 var(--game-dark);
-  animation: pop 0.2s ease-out;
+  animation: pop 220ms var(--ease-out);
 }
 .card h2 { margin: 10px 0 6px; font-family: var(--display); font-size: var(--s3); font-weight: 800; line-height: 1.05; }
 .card p { margin: 0 0 20px; font-size: var(--s0); line-height: 1.45; color: var(--night-soft); }
@@ -256,6 +286,7 @@ button { font-family: inherit; color: inherit; cursor: pointer; }
   max-height: 86vh;
   max-height: 86dvh;
   overflow-y: auto;
+  overscroll-behavior: contain;
   text-align: left;
 }
 .records h2 { text-align: center; }
@@ -317,15 +348,21 @@ button { font-family: inherit; color: inherit; cursor: pointer; }
   animation: fall linear forwards;
 }
 
+/* Popups and newly placed numbers/flags arrive from almost full size, never from nothing */
 @keyframes pop {
-  from { transform: scale(0.3); }
-  to { transform: scale(1); }
+  from { opacity: 0; transform: scale(0.94); }
+  to { opacity: 1; transform: scale(1); }
+}
+@keyframes fade {
+  from { opacity: 0; }
 }
 @keyframes fall {
   to { transform: translateY(110vh) rotate(360deg); }
 }
 
+/* Reduced motion: keep the fades (they help show what changed), drop zooms, wobbles and confetti */
 @media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition: none !important; }
+  .card, .cell span, .cell.placed, .num.pop { animation-name: fade; }
+  .cell.peek, .signs button.shake { animation: none; }
   .confetti { display: none; }
 }

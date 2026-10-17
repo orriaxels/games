@@ -85,6 +85,9 @@ function nameForm(onSaved, label) {
   input.value = playerName();
   input.autocomplete = 'nickname';
   input.enterKeyHint = 'done';
+  input.autocapitalize = 'words';   // names start with a capital
+  input.spellcheck = false;
+  input.setAttribute('autocorrect', 'off');
   const save = document.createElement('button');
   save.type = 'submit';
   save.className = 'again';

@@ -1,6 +1,6 @@
 // Offline support. When online, always fetch the newest files (skipping the browser's
 // own cache) and keep a copy; when offline or very slow, use the copy instead.
-const CACHE = 'leikir-v12';
+const CACHE = 'leikir-v13';
 const FONT_CACHE = 'leikir-fonts';   // Google Fonts, kept across versions
 const FONT_HOSTS = ['fonts.googleapis.com', 'fonts.gstatic.com'];
 const NETWORK_TIMEOUT_MS = 4000;
