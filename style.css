@@ -74,8 +74,28 @@ button { font-family: inherit; cursor: pointer; }
 }
 .face:active { transform: translateY(3px); box-shadow: 0 2px 0 rgba(0, 0, 0, 0.25); }
 
-/* Difficulty */
+/* Difficulty + records button */
+.row {
+  display: flex;
+  gap: 8px;
+}
+
+.trophy {
+  padding: 0 14px;
+  border: none;
+  border-radius: 999px;
+  background: #ffd54f;
+  color: #5d4037;
+  font-size: 17px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  box-shadow: 0 4px 0 rgba(0, 0, 0, 0.25);
+}
+.trophy:active { transform: translateY(2px); box-shadow: 0 2px 0 rgba(0, 0, 0, 0.25); }
+
 .levels {
+  flex: 1;
   display: flex;
   gap: 4px;
   padding: 4px;
@@ -89,7 +109,7 @@ button { font-family: inherit; cursor: pointer; }
   border-radius: 999px;
   background: transparent;
   color: #fff;
-  font-size: 17px;
+  font-size: 16px;
   font-weight: 700;
 }
 .levels button.active { background: #fff; color: var(--bg); }
@@ -191,6 +211,39 @@ button { font-family: inherit; cursor: pointer; }
 .card h2 { margin: 8px 0 4px; font-size: 28px; }
 .card p { margin: 0 0 20px; font-size: 18px; }
 .big { font-size: 64px; line-height: 1; }
+
+.records {
+  max-height: 86vh;
+  max-height: 86dvh;
+  overflow-y: auto;
+}
+.records table {
+  width: 100%;
+  margin-bottom: 16px;
+  border-collapse: collapse;
+  font-size: 17px;
+}
+.records th { font-size: 13px; color: #888; font-weight: 600; padding-bottom: 4px; }
+.records td { padding: 8px 4px; border-top: 1px solid #eee; font-weight: 700; font-variant-numeric: tabular-nums; }
+.records th:first-child, .records td:first-child { text-align: left; }
+.records h3 { margin: 0 0 8px; font-size: 18px; text-align: left; }
+
+.history {
+  margin: 0 0 20px;
+  padding: 0;
+  list-style: none;
+  text-align: left;
+  font-size: 16px;
+}
+.history li {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 7px 0;
+  border-top: 1px solid #eee;
+}
+.history .when { color: #888; font-size: 14px; white-space: nowrap; }
+.history .empty { color: #888; justify-content: center; }
 
 .again {
   padding: 14px 32px;

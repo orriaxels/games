@@ -22,11 +22,14 @@
       <div class="stat" aria-label="Sekúndur"><span aria-hidden="true">⏱️</span> <span id="time">0</span></div>
     </header>
 
-    <nav class="levels" id="levels">
-      <button type="button" data-level="easy">Létt</button>
-      <button type="button" data-level="medium">Miðlungs</button>
-      <button type="button" data-level="hard">Erfitt</button>
-    </nav>
+    <div class="row">
+      <nav class="levels" id="levels">
+        <button type="button" data-level="easy">Létt</button>
+        <button type="button" data-level="medium">Miðlungs</button>
+        <button type="button" data-level="hard">Erfitt</button>
+      </nav>
+      <button id="trophy" class="trophy" type="button" aria-label="Metin mín"><span aria-hidden="true">🏆</span> <span id="best">–</span></button>
+    </div>
 
     <div class="board-wrap" id="wrap">
       <div class="board" id="board"></div>
@@ -44,6 +47,19 @@
       <h2 id="result-title">Þú vannst!</h2>
       <p id="result-text"></p>
       <button id="again" class="again" type="button">Spila aftur</button>
+    </div>
+  </div>
+
+  <div class="overlay" id="records" hidden>
+    <div class="card records">
+      <h2>🏆 Metin mín</h2>
+      <table>
+        <thead><tr><th>Stig</th><th>Met</th><th>Unnið</th></tr></thead>
+        <tbody id="records-body"></tbody>
+      </table>
+      <h3>Síðustu leikir</h3>
+      <ol id="history" class="history"></ol>
+      <button id="records-close" class="again" type="button">Loka</button>
     </div>
   </div>
 

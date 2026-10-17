@@ -5,6 +5,8 @@ const LEVELS = {
   medium: { cols: 9,  rows: 12, mines: 18 },
   hard:   { cols: 10, rows: 15, mines: 30 },
 };
+const LEVEL_NAMES = { easy: 'Létt', medium: 'Miðlungs', hard: 'Erfitt' };
+const HISTORY_MAX = 50;
 const LONG_PRESS_MS = 380;
 const MOVE_TOLERANCE = 12;
 
@@ -26,6 +28,7 @@ let status;          // 'ready' | 'playing' | 'won' | 'lost'
 let flagsPlaced, opened;
 let timer = null, startedAt = 0;
 let flagMode = false;
+let gameId = 0;      // stops a late result popup from showing over a newer game
 
 // --- storage (may be unavailable in private mode) ---
 
@@ -35,10 +38,17 @@ function load(key, fallback) {
 function save(key, value) {
   try { localStorage.setItem('ms-' + key, value); } catch { /* ignore */ }
 }
+function loadJSON(key, fallback) {
+  try { return JSON.parse(localStorage.getItem('ms-' + key)) ?? fallback; } catch { return fallback; }
+}
+function saveJSON(key, value) {
+  save(key, JSON.stringify(value));
+}
 
 // --- game setup ---
 
 function newGame() {
+  gameId++;
   clearPeek();
   ({ cols, rows, mines: mineCount } = LEVELS[level]);
   cells = Array.from({ length: cols * rows }, () => ({ mine: false, n: 0, open: false, flag: false }));
@@ -65,6 +75,7 @@ function newGame() {
     b.classList.toggle('active', b.dataset.level === level);
   });
   updateFlags();
+  updateBest();
   fit();
 }
 
@@ -182,7 +193,7 @@ function lose(hit) {
     if (!c.mine && c.flag) els[i].innerHTML = '<span>❌</span>';
   });
   others.forEach((i, k) => setTimeout(() => { els[i].innerHTML = '<span>💣</span>'; }, 40 * k));
-  setTimeout(() => showResult(false), 700 + 40 * others.length);
+  finishGame(false, 700 + 40 * others.length);
 }
 
 function win() {
@@ -196,27 +207,102 @@ function win() {
   updateFlags();
   buzz([40, 30, 40]);
   confetti();
-  setTimeout(() => showResult(true), 500);
+  finishGame(true, 500);
 }
 
-function showResult(won) {
+// Saves the game to this phone's records right away, then shows the popup after `delay`.
+function finishGame(won, delay) {
   const time = elapsed();
+  const best = bestTime(level);
   let text;
-  if (won) {
-    const best = Number(load('best-' + level, 0));
-    if (!best || time < best) {
-      save('best-' + level, time);
-      text = `${seconds(time)} — nýtt met! 🏆`;
-    } else {
-      text = `${seconds(time)} · Besti tími: ${best}`;
-    }
+  if (won && (!best || time < best)) {
+    save('best-' + level, time);
+    text = `${seconds(time)} — nýtt met! 🏆`;
+  } else if (won) {
+    text = `${seconds(time)} · Metið er ${seconds(best)}`;
   } else {
-    text = 'Úps, sprengja! Reyna aftur?';
+    text = best ? `Úps, sprengja! Metið þitt er ${seconds(best)}.` : 'Úps, sprengja! Reyna aftur?';
   }
-  $('result-emoji').textContent = won ? '🎉' : '💣';
-  $('result-title').textContent = won ? 'Þú vannst!' : 'Búmm!';
-  $('result-text').textContent = text;
-  overlayEl.hidden = false;
+  recordGame(won, time);
+  updateBest();
+
+  const id = gameId;
+  setTimeout(() => {
+    if (id !== gameId) return;
+    $('result-emoji').textContent = won ? '🎉' : '💣';
+    $('result-title').textContent = won ? 'Þú vannst!' : 'Búmm!';
+    $('result-text').textContent = text;
+    overlayEl.hidden = false;
+  }, delay);
+}
+
+// --- records: kept in this phone's browser storage ---
+
+function bestTime(lv) {
+  return Number(load('best-' + lv, 0)) || 0;
+}
+
+function recordGame(won, time) {
+  const stats = loadJSON('stats', {});
+  const s = stats[level] || (stats[level] = { played: 0, won: 0 });
+  s.played++;
+  if (won) s.won++;
+  saveJSON('stats', stats);
+
+  const history = loadJSON('history', []);
+  const list = Array.isArray(history) ? history : [];
+  list.unshift({ at: Date.now(), level, won, time });
+  saveJSON('history', list.slice(0, HISTORY_MAX));
+}
+
+// Browsers don't all ship Icelandic date names, so format by hand: "17. okt. 13:52"
+const MONTHS = ['jan.', 'feb.', 'mars', 'apr.', 'maí', 'júní', 'júlí', 'ágúst', 'sept.', 'okt.', 'nóv.', 'des.'];
+function formatWhen(ms) {
+  const d = new Date(ms), pad = (n) => String(n).padStart(2, '0');
+  return `${d.getDate()}. ${MONTHS[d.getMonth()]} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+
+function updateBest() {
+  $('best').textContent = bestTime(level) || '–';
+}
+
+function showRecords() {
+  const stats = loadJSON('stats', {});
+  const body = $('records-body');
+  body.replaceChildren();
+  for (const lv of Object.keys(LEVELS)) {
+    const s = stats[lv] || { played: 0, won: 0 };
+    const best = bestTime(lv);
+    const tr = document.createElement('tr');
+    for (const text of [LEVEL_NAMES[lv], best ? best + ' sek' : '–', `${s.won} af ${s.played}`]) {
+      const td = document.createElement('td');
+      td.textContent = text;
+      tr.appendChild(td);
+    }
+    body.appendChild(tr);
+  }
+
+  const list = $('history');
+  list.replaceChildren();
+  const history = loadJSON('history', []);
+  const games = (Array.isArray(history) ? history : []).slice(0, 20);
+  if (!games.length) {
+    const li = document.createElement('li');
+    li.className = 'empty';
+    li.textContent = 'Engir leikir enn. Spilaðu fyrst!';
+    list.appendChild(li);
+  }
+  for (const g of games) {
+    const li = document.createElement('li');
+    const what = document.createElement('span');
+    what.textContent = `${g.won ? '🎉' : '💣'} ${LEVEL_NAMES[g.level] || ''}${g.won ? ' · ' + g.time + ' sek' : ''}`;
+    const when = document.createElement('span');
+    when.className = 'when';
+    when.textContent = formatWhen(g.at);
+    li.append(what, when);
+    list.appendChild(li);
+  }
+  $('records').hidden = false;
 }
 
 // Icelandic: numbers ending in 1 (but not 11) take the singular.
@@ -341,6 +427,15 @@ $('again').addEventListener('click', newGame);
 overlayEl.addEventListener('click', (e) => {
   if (e.target === overlayEl) overlayEl.hidden = true;
 });
+
+$('trophy').addEventListener('click', showRecords);
+$('records-close').addEventListener('click', () => { $('records').hidden = true; });
+$('records').addEventListener('click', (e) => {
+  if (e.target === e.currentTarget) e.currentTarget.hidden = true;
+});
+
+// Ask the browser not to clear our storage when the phone runs low on space.
+if (navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(() => {});
 
 newGame();
 

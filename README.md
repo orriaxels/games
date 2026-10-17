@@ -5,7 +5,10 @@ Barnvænn námuleitarleikur sem er settur upp á síma sem vefapp (PWA). Engin a
 - **Ýttu** til að grafa, **haltu inni** til að flagga (eða skiptu stóra takkanum yfir í *Flagga* og ýttu til að flagga)
 - Fyrsta ýtingin er alltaf örugg
 - Ýttu á tölu til að sjá hvaða 8 reiti hún telur
-- Létt / Miðlungs / Erfitt, besti tími vistaður fyrir hvert stig
+- Létt / Miðlungs / Erfitt
+- 🏆 takkinn sýnir metið á hverju stigi, hversu marga leiki hefur verið unnið og síðustu 20 leiki.
+  Þetta er geymt í vafranum á hverjum síma fyrir sig (ekki á netinu), svo hvert barn á sín eigin met.
+  Ef vafragögnum (website data) er eytt í stillingum símans hverfa metin líka.
 - Virkar án nettengingar eftir uppsetningu
 
 ## Birta (GitHub Pages, ókeypis)
