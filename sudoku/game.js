@@ -16,6 +16,7 @@ const HINT = 'Veldu reit og ýttu svo á tölu';
 // Wrong numbers aren't shown straight away: only once every square is filled do the
 // wrong ones get `marked` (red) and counted as mistakes. Changing a square unmarks it.
 let level, puzzle, solution, entries, marked, mistakes, done;
+let undoStack = [];   // [{ i, before }]: what each changed square held before, most recent last
 let selected = -1;
 let elapsedMs = 0, runningSince = 0, ticker = null;
 let els = [];
@@ -101,6 +102,7 @@ function newPuzzle(lv) {
   ({ puzzle, solution } = makePuzzle(level));
   entries = new Array(81).fill(0);
   marked = new Array(81).fill(false);
+  undoStack = [];
   mistakes = 0;
   done = false;
   selected = -1;
@@ -115,7 +117,7 @@ function newPuzzle(lv) {
 
 function saveGame() {
   if (done) { store.remove('current'); return; }
-  store.setJSON('current', { level, puzzle, solution, entries, marked, mistakes, elapsed: currentMs() });
+  store.setJSON('current', { level, puzzle, solution, entries, marked, undo: undoStack, mistakes, elapsed: currentMs() });
 }
 
 function loadGame() {
@@ -124,6 +126,9 @@ function loadGame() {
   if (!g || !GIVENS[g.level] || !ok(g.puzzle) || !ok(g.solution) || !ok(g.entries)) return false;
   ({ level, puzzle, solution, entries } = g);
   marked = ok(g.marked) ? g.marked.map(Boolean) : new Array(81).fill(false);
+  undoStack = Array.isArray(g.undo)
+    ? g.undo.filter((u) => u && Number.isInteger(u.i) && u.i >= 0 && u.i < 81 && !puzzle[u.i])
+    : [];
   mistakes = Number(g.mistakes) || 0;
   elapsedMs = Number(g.elapsed) || 0;
   done = false;
@@ -212,6 +217,7 @@ function render() {
     el.classList.toggle('peer', peer);
     el.classList.toggle('same', !!selVal && i !== sel && v === selVal);
   }
+  $('undo').disabled = done || !undoStack.length;
   // Each number shows how many are left to place, and greys out once nine are on the board
   // (right or wrong, so it doesn't give mistakes away).
   document.querySelectorAll('#pad [data-digit]').forEach((b) => {
@@ -239,14 +245,30 @@ window.addEventListener('resize', fit);
 
 // --- input ---
 
+// Undo history: what each changed square held before, most recent last.
+const UNDO_MAX = 200;
+
 function place(d) {
   if (done || selected < 0 || puzzle[selected]) return;
   if (entries[selected] === d) return;
-  entries[selected] = d;
-  marked[selected] = false;
-  els[selected].classList.remove('placed');
-  void els[selected].offsetWidth;   // restart the pop animation
-  if (d) els[selected].classList.add('placed');
+  undoStack.push({ i: selected, before: entries[selected] });
+  if (undoStack.length > UNDO_MAX) undoStack.shift();
+  setCell(selected, d);
+}
+
+function undo() {
+  if (done || !undoStack.length) return;
+  const { i, before } = undoStack.pop();
+  selected = i;
+  setCell(i, before);
+}
+
+function setCell(i, d) {
+  entries[i] = d;
+  marked[i] = false;
+  els[i].classList.remove('placed');
+  void els[i].offsetWidth;   // restart the pop animation
+  if (d) els[i].classList.add('placed');
 
   if (solution.every((v, i) => value(i) === v)) {
     render();
@@ -305,11 +327,16 @@ $('pad').addEventListener('click', (e) => {
   if (b) place(Number(b.dataset.digit));
 });
 
-// Keyboard on a computer: arrows to move, 1-9 to fill, Backspace to erase.
+$('undo').addEventListener('click', undo);
+
+// Keyboard on a computer: arrows to move, 1-9 to fill, Backspace to erase, Ctrl/Cmd+Z to undo.
 document.addEventListener('keydown', (e) => {
   if (done || e.target.closest('input')) return;
   const moves = { ArrowUp: -9, ArrowDown: 9, ArrowLeft: -1, ArrowRight: 1 };
-  if (e.key in moves) {
+  if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z') {
+    e.preventDefault();
+    undo();
+  } else if (e.key in moves) {
     e.preventDefault();
     if (selected < 0) selected = 40;
     else {

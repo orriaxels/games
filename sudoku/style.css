@@ -52,11 +52,19 @@
 .cell:active { filter: brightness(0.94); }   /* the square answers the finger before the tap ends */
 
 /* Number pad */
+/* 1-6 on top; 7-9, erase and undo (two columns wide) below */
 .pad {
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
+  grid-template-columns: repeat(6, 1fr);
   gap: 8px;
 }
+.pad .undo {
+  grid-column: span 2;
+  background: #e6ecf1;
+  color: var(--night);
+  font-size: var(--s0);
+}
+.pad .undo:disabled { opacity: 0.35; }
 .pad button {
   height: 54px;
   border: none;
