@@ -134,6 +134,7 @@ button { font-family: inherit; cursor: pointer; }
 }
 
 .cell {
+  position: relative;
   width: var(--cell);
   height: var(--cell);
   margin: 0;
@@ -151,6 +152,17 @@ button { font-family: inherit; cursor: pointer; }
 }
 .cell.alt { background: var(--grass-2); }
 .cell.pressed:not(.open) { filter: brightness(1.15); }
+/* while holding, a faint flag grows so kids can see when to let go */
+.cell.pressed:not(.open):empty::after {
+  content: '🚩';
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(var(--cell) * 0.5);
+  animation: hold 0.4s ease-in forwards;
+}
 .cell.open { background: var(--dirt-1); }
 .cell.open.alt { background: var(--dirt-2); }
 .cell.boom { background: #e53935; }
@@ -267,6 +279,10 @@ button { font-family: inherit; cursor: pointer; }
 @keyframes pop {
   from { transform: scale(0.3); }
   to { transform: scale(1); }
+}
+@keyframes hold {
+  from { opacity: 0; transform: scale(0.4); }
+  to { opacity: 0.6; transform: scale(0.9); }
 }
 @keyframes glow {
   to { box-shadow: inset 0 0 0 5px #ffeb3b; filter: brightness(1.12); }

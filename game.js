@@ -7,7 +7,8 @@ const LEVELS = {
 };
 const LEVEL_NAMES = { easy: 'Létt', medium: 'Miðlungs', hard: 'Erfitt' };
 const HISTORY_MAX = 50;
-const LONG_PRESS_MS = 380;
+const LONG_PRESS_MS = 400;
+const TAP_MAX_MS = 250;   // a release between this and LONG_PRESS_MS does nothing, so a hold that ends early never digs
 const MOVE_TOLERANCE = 12;
 
 const $ = (id) => document.getElementById(id);
@@ -353,7 +354,7 @@ function fit() {
 }
 window.addEventListener('resize', fit);
 
-// --- input: tap = current mode, long-press = the other action, right-click = flag ---
+// --- input: tap = current mode, long-press = always flag, right-click = flag ---
 
 let press = null;
 
@@ -376,11 +377,11 @@ boardEl.addEventListener('pointerdown', (e) => {
   }
   if (e.button !== 0) return;
 
-  const p = { i, x: e.clientX, y: e.clientY, long: false };
+  const p = { i, x: e.clientX, y: e.clientY, t: performance.now(), long: false };
   p.timer = setTimeout(() => {
     p.long = true;
     cell.classList.remove('pressed');
-    if (flagMode) dig(i); else toggleFlag(i);
+    toggleFlag(i);
   }, LONG_PRESS_MS);
   press = p;
   cell.classList.add('pressed');
@@ -392,10 +393,11 @@ boardEl.addEventListener('pointermove', (e) => {
 
 boardEl.addEventListener('pointerup', () => {
   if (!press) return;
-  const { i, long } = press;
+  const { i, long, t } = press;
   endPress();
   if (long) return;
   if (cells[i].open) peek(i);
+  else if (performance.now() - t > TAP_MAX_MS) return;
   else if (flagMode) toggleFlag(i);
   else dig(i);
 });
@@ -410,7 +412,7 @@ modeEl.addEventListener('click', () => {
   $('mode-icon').textContent = flagMode ? '🚩' : '⛏️';
   $('mode-label').textContent = flagMode ? 'Flagga' : 'Grafa';
   $('hint').textContent = flagMode
-    ? 'Ýttu til að flagga · Haltu inni til að grafa'
+    ? 'Ýttu til að flagga · Skiptu yfir í Grafa til að grafa'
     : 'Ýttu til að grafa · Haltu inni til að flagga';
 });
 

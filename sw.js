@@ -1,6 +1,6 @@
 // Offline support. Serves from cache straight away and refreshes the cache in the
 // background, so a new version shows up the next time the app is opened.
-const CACHE = 'minesweeper-v3';
+const CACHE = 'minesweeper-v4';
 const ASSETS = [
   './',
   'index.html',
