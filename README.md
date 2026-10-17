@@ -15,11 +15,13 @@ Upphafssíðan býður upp á þrjá leiki:
 - Þraut sem er ekki búin vistast, svo það má loka appinu og halda áfram seinna
 
 **Reiknigáta** (`reiknigata/`)
-- Krossgáta með tölum: 3 jöfnur lárétt og 3 lóðrétt, fylltu í auðu reitina
+- Krossgáta með tölum þar sem jöfnurnar krossast, fylltu í auðu reitina
 - Veldu hvaða merki eru með: + − × ÷ (a.m.k. eitt)
 - Þegar jafna er fyllt verða merkin græn ef hún er rétt en rauð ef hún er röng
 - Hægt er að leysa hverja gátu eina jöfnu í einu og hún hefur bara eina lausn
-- Létt: tölur upp í 20, 3 auðir reitir · Miðlungs: upp í 50, 4 auðir · Erfitt: upp í 100, 5 auðir
+- Létt: 3×3 ferningur (6 jöfnur), tölur upp í 20, 3 auðir reitir
+- Miðlungs: ný krossgáta í hvert sinn, 7 jöfnur, tölur upp í 50, 7 auðir reitir
+- Erfitt: ný krossgáta í hvert sinn, 10 jöfnur, tölur upp í 100, 10 auðir reitir
 
 Allir leikirnir eru með Létt / Miðlungs / Erfitt og 🏆 takka sem sýnir metið á hverju stigi og síðustu leiki.
 Metin eru geymd í vafranum á hverjum síma fyrir sig (ekki á netinu), svo hvert barn á sín eigin met.

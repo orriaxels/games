@@ -41,12 +41,14 @@
 .signs button.on { border-color: #fff; background: #fff; color: var(--bg); box-shadow: 0 4px 0 rgba(0, 0, 0, 0.25); }
 .signs button.shake { animation: shake 0.3s; }
 
-/* Board: 5x5 tiles — numbers, signs and = */
+/* Board: numbers, signs and = on a grid of tiles (5x5 up to 9x9) */
 .board {
+  --cols: 5;
+  --gap: 6px;
   display: grid;
-  grid-template-columns: repeat(5, var(--tile));
+  grid-template-columns: repeat(var(--cols), var(--tile));
   grid-auto-rows: var(--tile);
-  gap: 6px;
+  gap: var(--gap);
 }
 
 .tile {
@@ -56,7 +58,7 @@
   margin: 0;
   padding: 0;
   border: none;
-  border-radius: 14px;
+  border-radius: calc(var(--tile) * 0.22);
   font-size: calc(var(--tile) * 0.44);
   font-weight: 800;
   line-height: 1;
@@ -64,9 +66,9 @@
 }
 
 .num { background: #fff; color: #263238; box-shadow: 0 4px 0 rgba(0, 0, 0, 0.2); }
-.num.blank { background: #fff8e1; color: #1565c0; border: 3px dashed #c9a227; }
+.num.blank { background: #fff8e1; color: #1565c0; border: max(2px, calc(var(--tile) * 0.05)) dashed #c9a227; }
 .num.blank.filled { border-style: solid; border-color: #e0c56a; }
-.num.sel { background: #ffe082; border: 3px solid #f57c00; }
+.num.sel { background: #ffe082; border: max(2px, calc(var(--tile) * 0.05)) solid #f57c00; }
 .num.pop { animation: pop 0.15s ease-out; }
 
 .op, .eq {
@@ -83,8 +85,8 @@
 .op[data-op="×"] { background: var(--times); }
 .op[data-op="÷"] { background: var(--divide); }
 .eq { background: rgba(0, 0, 0, 0.25); }
-.op.ok, .eq.ok { background: #2e7d32; box-shadow: 0 0 0 3px #a5d6a7; }
-.op.bad, .eq.bad { background: #e53935; box-shadow: 0 0 0 3px #ffcdd2; }
+.op.ok, .eq.ok { background: #2e7d32; box-shadow: 0 0 0 max(2px, calc(var(--tile) * 0.05)) #a5d6a7; }
+.op.bad, .eq.bad { background: #e53935; box-shadow: 0 0 0 max(2px, calc(var(--tile) * 0.05)) #ffcdd2; }
 
 .gap { visibility: hidden; }
 

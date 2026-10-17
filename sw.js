@@ -1,6 +1,6 @@
 // Offline support. Serves from cache straight away and refreshes the cache in the
 // background, so a new version shows up the next time the app is opened.
-const CACHE = 'leikir-v2';
+const CACHE = 'leikir-v3';
 const ASSETS = [
   './',
   'index.html',
