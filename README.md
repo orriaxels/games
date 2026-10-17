@@ -20,7 +20,7 @@ Ef vafragögnum (website data) er eytt í stillingum símans hverfa metin líka.
 
 ## Setja upp á símunum
 
-Slóðin er `https://orriaxels.github.io/leikir/`
+Slóðin er `https://orriaxels.github.io/games/`
 
 - **iPhone:** opnaðu hlekkinn í **Safari** → Deila-takkinn → **Add to Home Screen** (*Bæta á heimaskjá*).
 - **Android:** opnaðu hlekkinn í **Chrome** → ⋮ valmynd → **Install app** (eða *Add to Home screen*).
