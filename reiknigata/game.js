@@ -332,9 +332,11 @@ function shown(i) {
   return entries[i] === '' ? null : Number(entries[i]);
 }
 
-// 'ok', 'bad' or '' for each equation
+// For each equation: 'ok', 'bad', '' (not filled in yet) or 'given' (nothing to fill in;
+// those don't turn green or count, so the counter starts at 0).
 function checks() {
   return slots.map(({ op, cells: [a, b, c] }) => {
+    if (![a, b, c].some((i) => blank[i])) return 'given';
     const A = shown(a), B = shown(b), C = shown(c);
     if (A == null || B == null || C == null) return '';
     return calc(op, A, B) === C ? 'ok' : 'bad';
@@ -447,7 +449,7 @@ function render() {
       el.classList.toggle('bad', s === 'bad');
     }
   });
-  $('solved').textContent = `${state.filter((s) => s === 'ok').length}/${slots.length}`;
+  $('solved').textContent = `${state.filter((s) => s === 'ok').length}/${state.filter((s) => s !== 'given').length}`;
 }
 
 function drawSigns() {
@@ -501,7 +503,7 @@ function key(k) {
   render();
 
   const state = checks();
-  if (state.every((x) => x === 'ok')) return win();
+  if (state.every((x) => x === 'ok' || x === 'given')) return win();
   if (state.some((x, e) => x === 'bad' && slots[e].cells.includes(selected))) buzz(40);
   saveGame();
 }
