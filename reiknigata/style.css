@@ -8,46 +8,63 @@
   --divide: #d81b60;
 }
 
+/* On phones: compact controls, so the board gets as much room as possible. */
+@media (max-width: 520px) {
+  .app {
+    gap: 8px;
+    padding:
+      calc(env(safe-area-inset-top) + 6px)
+      calc(env(safe-area-inset-right) + 8px)
+      calc(env(safe-area-inset-bottom) + 8px)
+      calc(env(safe-area-inset-left) + 8px);
+  }
+  .home { width: 38px; height: 38px; font-size: 26px; }
+  .stat { min-width: 0; padding: 6px 10px; font-size: 17px; }
+  .levels { padding: 3px; }
+  .levels button { padding: 7px 0; font-size: 15px; }
+  .trophy { padding: 0 10px; font-size: 15px; box-shadow: 0 3px 0 rgba(0, 0, 0, 0.25); }
+  .hint { display: none; }
+}
+
 .new {
-  width: 60px;
-  height: 60px;
+  width: 46px;
+  height: 46px;
   border: none;
   border-radius: 50%;
   background: #ffd54f;
-  font-size: 30px;
+  font-size: 24px;
   line-height: 1;
-  box-shadow: 0 5px 0 rgba(0, 0, 0, 0.25);
+  box-shadow: 0 4px 0 rgba(0, 0, 0, 0.25);
 }
-.new:active { transform: translateY(3px); box-shadow: 0 2px 0 rgba(0, 0, 0, 0.25); }
+.new:active { transform: translateY(3px); box-shadow: 0 1px 0 rgba(0, 0, 0, 0.25); }
 
 /* Sign picker */
 .signs {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
 }
-.signs-label { font-size: 16px; font-weight: 700; margin-right: 2px; }
+.signs-label { font-size: 14px; font-weight: 700; margin-right: 2px; }
 .signs button {
   flex: 1;
-  height: 46px;
-  border: 3px solid rgba(255, 255, 255, 0.5);
-  border-radius: 14px;
+  height: 36px;
+  border: 2px solid rgba(255, 255, 255, 0.5);
+  border-radius: 12px;
   background: transparent;
   color: rgba(255, 255, 255, 0.7);
-  font-size: 28px;
+  font-size: 22px;
   font-weight: 800;
   line-height: 1;
 }
-.signs button.on { border-color: #fff; background: #fff; color: var(--bg); box-shadow: 0 4px 0 rgba(0, 0, 0, 0.25); }
+.signs button.on { border-color: #fff; background: #fff; color: var(--bg); box-shadow: 0 3px 0 rgba(0, 0, 0, 0.25); }
 .signs button.shake { animation: shake 0.3s; }
 
-/* Board: numbers, signs and = on a grid of tiles (5x5 up to 9x9) */
+/* Board: numbers, signs and = on a grid of tiles (5x5 up to 9x9).
+   Columns and rows that only hold signs are narrower (--thin); game.js sets the tracks. */
 .board {
-  --cols: 5;
   --gap: 6px;
+  --thin: 36px;
   display: grid;
-  grid-template-columns: repeat(var(--cols), var(--tile));
-  grid-auto-rows: var(--tile);
   gap: var(--gap);
 }
 
@@ -72,12 +89,12 @@
 .num.pop { animation: pop 0.15s ease-out; }
 
 .op, .eq {
+  place-self: center;
   border-radius: 50%;
-  width: 78%;
-  height: 78%;
-  margin: auto;
+  width: calc(var(--thin) * 0.94);
+  height: calc(var(--thin) * 0.94);
   color: #fff;
-  font-size: calc(var(--tile) * 0.42);
+  font-size: calc(var(--thin) * 0.66);
   transition: background 0.2s;
 }
 .op[data-op="+"] { background: var(--plus); }
@@ -97,7 +114,7 @@
   gap: 8px;
 }
 .pad button {
-  height: 52px;
+  height: 46px;
   border: none;
   border-radius: 14px;
   background: #fff;

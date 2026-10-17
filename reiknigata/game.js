@@ -411,7 +411,10 @@ function buildBoard() {
   const cs = [...at.keys()].map((k) => Number(k.split(',')[1]));
   const r0 = Math.min(...rs), c0 = Math.min(...cs);
   bounds = { rows: Math.max(...rs) - r0 + 1, cols: Math.max(...cs) - c0 + 1 };
-  boardEl.style.setProperty('--cols', bounds.cols);
+  // Numbers are on even rows/columns (the board always starts on one); the ones between only hold signs.
+  const tracks = (k) => [...Array(k).keys()].map((i) => (i % 2 ? 'var(--thin)' : 'var(--tile)')).join(' ');
+  boardEl.style.gridTemplateColumns = tracks(bounds.cols);
+  boardEl.style.gridTemplateRows = tracks(bounds.rows);
   for (let r = r0; r < r0 + bounds.rows; r++) {
     for (let c = c0; c < c0 + bounds.cols; c++) {
       let el = at.get(r + ',' + c);
@@ -456,16 +459,20 @@ function updateBest() {
   $('best').textContent = best ? clock(best) : '–';
 }
 
-// Biggest tiles that fit the space.
+// Biggest tiles that fit the space. Sign rows/columns are THIN times a number tile.
+const THIN = 0.6;
 function fit() {
   const n = Math.max(bounds.rows, bounds.cols);
-  const gap = n <= 5 ? 6 : n <= 7 ? 5 : 4;
+  const gap = n <= 5 ? 6 : n <= 7 ? 4 : 3;
+  const units = (k) => Math.ceil(k / 2) + THIN * Math.floor(k / 2);
   const size = Math.floor(Math.min(
-    (wrapEl.clientWidth - (bounds.cols - 1) * gap) / bounds.cols,
-    (wrapEl.clientHeight - (bounds.rows - 1) * gap) / bounds.rows,
-    76));
+    (wrapEl.clientWidth - (bounds.cols - 1) * gap) / units(bounds.cols),
+    (wrapEl.clientHeight - (bounds.rows - 1) * gap) / units(bounds.rows),
+    80));
+  const tile = Math.max(size, 26);
   boardEl.style.setProperty('--gap', gap + 'px');
-  boardEl.style.setProperty('--tile', Math.max(size, 26) + 'px');
+  boardEl.style.setProperty('--tile', tile + 'px');
+  boardEl.style.setProperty('--thin', Math.round(tile * THIN) + 'px');
 }
 window.addEventListener('resize', fit);
 
