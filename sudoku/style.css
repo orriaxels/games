@@ -1,0 +1,82 @@
+/* Sudoku. Shared layout and popups are in ../common.css. */
+:root {
+  --bg: #3c6aa6;
+  --line: #2b4f80;
+  --thin: #b7c7dd;
+  --cell: 36px;
+}
+
+.new {
+  width: 60px;
+  height: 60px;
+  border: none;
+  border-radius: 50%;
+  background: #ffd54f;
+  font-size: 30px;
+  line-height: 1;
+  box-shadow: 0 5px 0 rgba(0, 0, 0, 0.25);
+}
+.new:active { transform: translateY(3px); box-shadow: 0 2px 0 rgba(0, 0, 0, 0.25); }
+
+/* Board: thin lines between cells, thick lines between the 3x3 boxes */
+.board {
+  display: grid;
+  grid-template-columns: repeat(9, var(--cell));
+  border: 3px solid var(--line);
+  border-radius: 10px;
+  overflow: hidden;
+  background: #fff;
+  box-shadow: 0 6px 0 rgba(0, 0, 0, 0.25);
+  touch-action: manipulation;
+}
+
+.cell {
+  width: var(--cell);
+  height: var(--cell);
+  margin: 0;
+  padding: 0;
+  border: none;
+  border-right: 1px solid var(--thin);
+  border-bottom: 1px solid var(--thin);
+  border-radius: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #fff;
+  color: #1565c0;
+  font-size: calc(var(--cell) * 0.6);
+  font-weight: 700;
+  line-height: 1;
+}
+.cell.c9 { border-right: none; }
+.cell.r9 { border-bottom: none; }
+.cell.bx { border-right: 3px solid var(--line); }
+.cell.by { border-bottom: 3px solid var(--line); }
+
+.cell.given { color: #263238; font-weight: 800; }
+.cell.peer { background: #e3edf9; }
+.cell.same { background: #bcd4f2; }
+.cell.sel { background: #ffe082; }
+.cell.wrong { color: #e53935; background: #fde0e0; }
+.cell.sel.wrong { background: #ffcdd2; }
+.cell.placed { animation: pop 0.15s ease-out; }
+
+/* Number pad */
+.pad {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 8px;
+}
+.pad button {
+  height: 54px;
+  border: none;
+  border-radius: 14px;
+  background: #fff;
+  color: var(--bg);
+  font-size: 28px;
+  font-weight: 800;
+  box-shadow: 0 4px 0 rgba(0, 0, 0, 0.25);
+}
+.pad button:active { transform: translateY(2px); box-shadow: 0 2px 0 rgba(0, 0, 0, 0.25); }
+.pad button.done { opacity: 0.35; }
+.pad .erase { background: #ffd54f; color: #5d4037; }

@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="is">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+  <title>Námuleit</title>
+  <meta name="theme-color" content="#4a752c">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Leikir">
+  <link rel="manifest" href="../manifest.json">
+  <link rel="icon" href="../icons/icon-192.png">
+  <link rel="apple-touch-icon" href="../icons/apple-touch-icon.png">
+  <link rel="stylesheet" href="../common.css">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main class="app">
+    <header class="bar">
+      <div class="bar-left">
+        <a class="home" href="../" aria-label="Heim">‹</a>
+        <div class="stat" aria-label="Flögg eftir"><span aria-hidden="true">🚩</span> <span id="flags">0</span></div>
+      </div>
+      <button id="face" class="face" type="button" aria-label="Nýr leikur">🙂</button>
+      <div class="stat" aria-label="Sekúndur"><span aria-hidden="true">⏱️</span> <span id="time">0</span></div>
+    </header>
+
+    <div class="row">
+      <nav class="levels" id="levels">
+        <button type="button" data-level="easy">Létt</button>
+        <button type="button" data-level="medium">Miðlungs</button>
+        <button type="button" data-level="hard">Erfitt</button>
+      </nav>
+      <button id="trophy" class="trophy" type="button" aria-label="Metin mín"><span aria-hidden="true">🏆</span> <span id="best">–</span></button>
+    </div>
+
+    <div class="board-wrap" id="wrap">
+      <div class="board" id="board"></div>
+    </div>
+
+    <button id="mode" class="mode" type="button" aria-pressed="false">
+      <span id="mode-icon" aria-hidden="true">⛏️</span> <span id="mode-label">Grafa</span>
+    </button>
+    <p class="hint" id="hint">Ýttu til að grafa · Haltu inni til að flagga</p>
+  </main>
+
+  <div class="overlay" id="overlay" hidden>
+    <div class="card">
+      <div class="big" id="result-emoji">🎉</div>
+      <h2 id="result-title">Þú vannst!</h2>
+      <p id="result-text"></p>
+      <button id="again" class="again" type="button">Spila aftur</button>
+    </div>
+  </div>
+
+  <div class="overlay" id="records" hidden>
+    <div class="card records">
+      <h2>🏆 Metin mín</h2>
+      <table>
+        <thead><tr><th>Stig</th><th>Met</th><th>Unnið</th></tr></thead>
+        <tbody id="records-body"></tbody>
+      </table>
+      <h3>Síðustu leikir</h3>
+      <ol id="history" class="history"></ol>
+      <button class="again" type="button" data-close>Loka</button>
+    </div>
+  </div>
+
+  <script src="../common.js"></script>
+  <script src="game.js"></script>
+</body>
+</html>

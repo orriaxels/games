@@ -1,0 +1,99 @@
+/* Námuleit (Minesweeper). Shared layout and popups are in ../common.css. */
+:root {
+  --grass-1: #aad751;
+  --grass-2: #a2d149;
+  --dirt-1: #e5c29f;
+  --dirt-2: #d7b899;
+  --cell: 40px;
+  --cols: 8;
+}
+
+.face {
+  width: 60px;
+  height: 60px;
+  border: none;
+  border-radius: 50%;
+  background: #ffd54f;
+  font-size: 36px;
+  line-height: 1;
+  box-shadow: 0 5px 0 rgba(0, 0, 0, 0.25);
+}
+.face:active { transform: translateY(3px); box-shadow: 0 2px 0 rgba(0, 0, 0, 0.25); }
+
+/* Board */
+.board {
+  display: grid;
+  grid-template-columns: repeat(var(--cols), var(--cell));
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 6px 0 rgba(0, 0, 0, 0.25);
+  touch-action: none;
+}
+
+.cell {
+  position: relative;
+  width: var(--cell);
+  height: var(--cell);
+  margin: 0;
+  padding: 0;
+  border: none;
+  border-radius: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--grass-1);
+  color: inherit;
+  font-size: calc(var(--cell) * 0.58);
+  font-weight: 800;
+  line-height: 1;
+}
+.cell.alt { background: var(--grass-2); }
+.cell.pressed:not(.open) { filter: brightness(1.15); }
+/* while holding, a faint flag grows so kids can see when to let go */
+.cell.pressed:not(.open):empty::after {
+  content: '🚩';
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(var(--cell) * 0.5);
+  animation: hold 0.4s ease-in forwards;
+}
+.cell.open { background: var(--dirt-1); }
+.cell.open.alt { background: var(--dirt-2); }
+.cell.boom { background: #e53935; }
+.cell.peek { box-shadow: inset 0 0 0 3px #ffeb3b; animation: glow 0.5s ease-in-out 3 alternate; }
+.cell.peek-source { box-shadow: inset 0 0 0 3px #fff; }
+.cell span { font-size: calc(var(--cell) * 0.5); animation: pop 0.15s ease-out; }
+
+.n1 { color: #1976d2; }
+.n2 { color: #388e3c; }
+.n3 { color: #d32f2f; }
+.n4 { color: #7b1fa2; }
+.n5 { color: #ff8f00; }
+.n6 { color: #0097a7; }
+.n7 { color: #424242; }
+.n8 { color: #9e9e9e; }
+
+/* Dig / flag toggle */
+.mode {
+  height: 62px;
+  border: none;
+  border-radius: 18px;
+  background: #fff;
+  color: var(--bg);
+  font-size: 24px;
+  font-weight: 800;
+  box-shadow: 0 5px 0 rgba(0, 0, 0, 0.25);
+}
+.mode.on { background: #e53935; color: #fff; }
+.mode:active { transform: translateY(3px); box-shadow: 0 2px 0 rgba(0, 0, 0, 0.25); }
+
+@keyframes hold {
+  from { opacity: 0; transform: scale(0.4); }
+  to { opacity: 0.6; transform: scale(0.9); }
+}
+@keyframes glow {
+  to { box-shadow: inset 0 0 0 5px #ffeb3b; filter: brightness(1.12); }
+}

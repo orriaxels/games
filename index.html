@@ -3,66 +3,73 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
-  <title>Námuleit</title>
+  <title>Leikir</title>
   <meta name="theme-color" content="#4a752c">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="Námuleit">
+  <meta name="apple-mobile-web-app-title" content="Leikir">
   <link rel="manifest" href="manifest.json">
   <link rel="icon" href="icons/icon-192.png">
   <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="common.css">
+  <style>
+    .start { justify-content: center; gap: 18px; }
+    .start h1 { margin: 0 0 6px; text-align: center; font-size: 40px; }
+    .game {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 16px;
+      border-radius: 24px;
+      background: #fff;
+      color: #333;
+      text-decoration: none;
+      box-shadow: 0 6px 0 rgba(0, 0, 0, 0.25);
+    }
+    .game:active { transform: translateY(3px); box-shadow: 0 3px 0 rgba(0, 0, 0, 0.25); }
+    .game img { width: 96px; height: 96px; border-radius: 20px; flex: none; }
+    .game h2 { margin: 0 0 4px; font-size: 28px; }
+    .game p { margin: 0; font-size: 16px; color: #666; }
+    .game .go { margin-left: auto; font-size: 34px; color: #bbb; }
+  </style>
 </head>
 <body>
-  <main class="app">
-    <header class="bar">
-      <div class="stat" aria-label="Flögg eftir"><span aria-hidden="true">🚩</span> <span id="flags">0</span></div>
-      <button id="face" class="face" type="button" aria-label="Nýr leikur">🙂</button>
-      <div class="stat" aria-label="Sekúndur"><span aria-hidden="true">⏱️</span> <span id="time">0</span></div>
-    </header>
-
-    <div class="row">
-      <nav class="levels" id="levels">
-        <button type="button" data-level="easy">Létt</button>
-        <button type="button" data-level="medium">Miðlungs</button>
-        <button type="button" data-level="hard">Erfitt</button>
-      </nav>
-      <button id="trophy" class="trophy" type="button" aria-label="Metin mín"><span aria-hidden="true">🏆</span> <span id="best">–</span></button>
-    </div>
-
-    <div class="board-wrap" id="wrap">
-      <div class="board" id="board"></div>
-    </div>
-
-    <button id="mode" class="mode" type="button" aria-pressed="false">
-      <span id="mode-icon" aria-hidden="true">⛏️</span> <span id="mode-label">Grafa</span>
-    </button>
-    <p class="hint" id="hint">Ýttu til að grafa · Haltu inni til að flagga</p>
+  <main class="app start">
+    <h1>Leikir</h1>
+    <a class="game" href="namuleit/">
+      <img src="icons/namuleit.png" alt="">
+      <div>
+        <h2>Námuleit</h2>
+        <p id="ms-note">Finndu allar sprengjurnar</p>
+      </div>
+      <span class="go" aria-hidden="true">›</span>
+    </a>
+    <a class="game" href="sudoku/">
+      <img src="icons/sudoku.png" alt="">
+      <div>
+        <h2>Sudoku</h2>
+        <p id="sd-note">Tölurnar 1 til 9</p>
+      </div>
+      <span class="go" aria-hidden="true">›</span>
+    </a>
   </main>
 
-  <div class="overlay" id="overlay" hidden>
-    <div class="card">
-      <div class="big" id="result-emoji">🎉</div>
-      <h2 id="result-title">Þú vannst!</h2>
-      <p id="result-text"></p>
-      <button id="again" class="again" type="button">Spila aftur</button>
-    </div>
-  </div>
+  <script src="common.js"></script>
+  <script>
+    // Show each game's record, or that a sudoku is waiting to be finished.
+    const ms = makeRecords(makeStore('ms-'));
+    const msBest = Object.keys(LEVEL_NAMES).find((lv) => ms.best(lv));
+    if (msBest) $('ms-note').textContent = `🏆 ${LEVEL_NAMES[msBest]}: ${ms.best(msBest)} sek`;
 
-  <div class="overlay" id="records" hidden>
-    <div class="card records">
-      <h2>🏆 Metin mín</h2>
-      <table>
-        <thead><tr><th>Stig</th><th>Met</th><th>Unnið</th></tr></thead>
-        <tbody id="records-body"></tbody>
-      </table>
-      <h3>Síðustu leikir</h3>
-      <ol id="history" class="history"></ol>
-      <button id="records-close" class="again" type="button">Loka</button>
-    </div>
-  </div>
+    const sdStore = makeStore('sd-');
+    const sd = makeRecords(sdStore);
+    const current = sdStore.getJSON('current', null);
+    const sdBest = Object.keys(LEVEL_NAMES).find((lv) => sd.best(lv));
+    if (current && LEVEL_NAMES[current.level]) $('sd-note').textContent = `▶ Halda áfram (${LEVEL_NAMES[current.level]})`;
+    else if (sdBest) $('sd-note').textContent = `🏆 ${LEVEL_NAMES[sdBest]}: ${clock(sd.best(sdBest))}`;
 
-  <script src="game.js"></script>
+    registerServiceWorker('sw.js');
+  </script>
 </body>
 </html>

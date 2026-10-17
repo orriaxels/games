@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="is">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+  <title>Sudoku</title>
+  <meta name="theme-color" content="#3c6aa6">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Leikir">
+  <link rel="manifest" href="../manifest.json">
+  <link rel="icon" href="../icons/icon-192.png">
+  <link rel="apple-touch-icon" href="../icons/apple-touch-icon.png">
+  <link rel="stylesheet" href="../common.css">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main class="app">
+    <header class="bar">
+      <div class="bar-left">
+        <a class="home" href="../" aria-label="Heim">‹</a>
+        <div class="stat" aria-label="Tími"><span aria-hidden="true">⏱️</span> <span id="time">0:00</span></div>
+      </div>
+      <button id="new" class="new" type="button" aria-label="Ný þraut">🔄</button>
+      <div class="stat" aria-label="Villur"><span aria-hidden="true">❌</span> <span id="mistakes">0</span></div>
+    </header>
+
+    <div class="row">
+      <nav class="levels" id="levels">
+        <button type="button" data-level="easy">Létt</button>
+        <button type="button" data-level="medium">Miðlungs</button>
+        <button type="button" data-level="hard">Erfitt</button>
+      </nav>
+      <button id="trophy" class="trophy" type="button" aria-label="Metin mín"><span aria-hidden="true">🏆</span> <span id="best">–</span></button>
+    </div>
+
+    <div class="board-wrap" id="wrap">
+      <div class="board" id="board"></div>
+    </div>
+
+    <div class="pad" id="pad">
+      <button type="button" data-digit="1">1</button>
+      <button type="button" data-digit="2">2</button>
+      <button type="button" data-digit="3">3</button>
+      <button type="button" data-digit="4">4</button>
+      <button type="button" data-digit="5">5</button>
+      <button type="button" data-digit="6">6</button>
+      <button type="button" data-digit="7">7</button>
+      <button type="button" data-digit="8">8</button>
+      <button type="button" data-digit="9">9</button>
+      <button type="button" data-digit="0" class="erase" aria-label="Stroka út">⌫</button>
+    </div>
+    <p class="hint">Veldu reit og ýttu svo á tölu</p>
+  </main>
+
+  <div class="overlay" id="overlay" hidden>
+    <div class="card">
+      <div class="big" id="result-emoji">🎉</div>
+      <h2 id="result-title">Þú kláraðir!</h2>
+      <p id="result-text"></p>
+      <button id="again" class="again" type="button">Ný þraut</button>
+    </div>
+  </div>
+
+  <div class="overlay" id="confirm" hidden>
+    <div class="card">
+      <div class="big">🤔</div>
+      <h2>Ný þraut?</h2>
+      <p>Þrautin sem þú ert með hverfur.</p>
+      <div class="actions">
+        <button id="confirm-yes" class="again" type="button">Já</button>
+        <button class="again secondary" type="button" data-close>Nei</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="overlay" id="records" hidden>
+    <div class="card records">
+      <h2>🏆 Metin mín</h2>
+      <table>
+        <thead><tr><th>Stig</th><th>Met</th><th>Klárað</th></tr></thead>
+        <tbody id="records-body"></tbody>
+      </table>
+      <h3>Síðustu þrautir</h3>
+      <ol id="history" class="history"></ol>
+      <button class="again" type="button" data-close>Loka</button>
+    </div>
+  </div>
+
+  <script src="../common.js"></script>
+  <script src="game.js"></script>
+</body>
+</html>

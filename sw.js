@@ -1,15 +1,25 @@
 // Offline support. Serves from cache straight away and refreshes the cache in the
 // background, so a new version shows up the next time the app is opened.
-const CACHE = 'minesweeper-v4';
+const CACHE = 'leikir-v1';
 const ASSETS = [
   './',
   'index.html',
-  'style.css',
-  'game.js',
+  'common.css',
+  'common.js',
   'manifest.json',
   'icons/icon-192.png',
   'icons/icon-512.png',
   'icons/apple-touch-icon.png',
+  'icons/namuleit.png',
+  'icons/sudoku.png',
+  'namuleit/',
+  'namuleit/index.html',
+  'namuleit/style.css',
+  'namuleit/game.js',
+  'sudoku/',
+  'sudoku/index.html',
+  'sudoku/style.css',
+  'sudoku/game.js',
 ];
 
 self.addEventListener('install', (e) => {
