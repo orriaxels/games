@@ -16,6 +16,10 @@
   <style>
     .title { margin: 0; font-size: 24px; text-align: center; }
     .app > .levels { flex: none; }   /* shared style lets them grow, which is meant for a row */
+    .games { border-radius: 22px; }
+    .games button { display: grid; place-items: center; padding: 6px 0; border-radius: 18px; }
+    .games img { width: 52px; height: 52px; border-radius: 12px; opacity: 0.55; transition: opacity 0.15s, transform 0.15s; }
+    .games button.active img { opacity: 1; transform: scale(1.06); }
     .refresh {
       width: 44px; height: 44px; border: none; border-radius: 50%;
       background: rgba(0, 0, 0, 0.2); color: #fff; font-size: 22px;
@@ -65,10 +69,10 @@
 
     <button id="me" class="me" type="button"></button>
 
-    <nav class="levels" id="games">
-      <button type="button" data-game="minesweeper">Minesweeper</button>
-      <button type="button" data-game="sudoku">Sudoku</button>
-      <button type="button" data-game="reiknigata">Reiknigáta</button>
+    <nav class="levels games" id="games">
+      <button type="button" data-game="minesweeper" aria-label="Minesweeper"><img src="../icons/namuleit.png" alt=""></button>
+      <button type="button" data-game="sudoku" aria-label="Sudoku"><img src="../icons/sudoku.png" alt=""></button>
+      <button type="button" data-game="reiknigata" aria-label="Reiknigáta"><img src="../icons/reiknigata.png" alt=""></button>
     </nav>
     <nav class="levels" id="levels">
       <button type="button" data-level="easy">Létt</button>
