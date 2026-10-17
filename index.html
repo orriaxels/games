@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="is">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+  <title>Námuleit</title>
+  <meta name="theme-color" content="#4a752c">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Námuleit">
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" href="icons/icon-192.png">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main class="app">
+    <header class="bar">
+      <div class="stat" aria-label="Flögg eftir"><span aria-hidden="true">🚩</span> <span id="flags">0</span></div>
+      <button id="face" class="face" type="button" aria-label="Nýr leikur">🙂</button>
+      <div class="stat" aria-label="Sekúndur"><span aria-hidden="true">⏱️</span> <span id="time">0</span></div>
+    </header>
+
+    <nav class="levels" id="levels">
+      <button type="button" data-level="easy">Létt</button>
+      <button type="button" data-level="medium">Miðlungs</button>
+      <button type="button" data-level="hard">Erfitt</button>
+    </nav>
+
+    <div class="board-wrap" id="wrap">
+      <div class="board" id="board"></div>
+    </div>
+
+    <button id="mode" class="mode" type="button" aria-pressed="false">
+      <span id="mode-icon" aria-hidden="true">⛏️</span> <span id="mode-label">Grafa</span>
+    </button>
+    <p class="hint" id="hint">Ýttu til að grafa · Haltu inni til að flagga</p>
+  </main>
+
+  <div class="overlay" id="overlay" hidden>
+    <div class="card">
+      <div class="big" id="result-emoji">🎉</div>
+      <h2 id="result-title">Þú vannst!</h2>
+      <p id="result-text"></p>
+      <button id="again" class="again" type="button">Spila aftur</button>
+    </div>
+  </div>
+
+  <script src="game.js"></script>
+</body>
+</html>
