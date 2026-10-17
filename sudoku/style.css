@@ -69,4 +69,24 @@
 }
 .pad button:active { transform: translateY(3px); box-shadow: inset 0 0 0 2px var(--wool), 0 1px 0 var(--wool); }
 .pad button.done { opacity: 0.3; }
+
+/* how many of this number are left to place, in the corner of its button */
+.pad button[data-left] { position: relative; }
+.pad button[data-left]::after {
+  content: attr(data-left);
+  position: absolute;
+  top: 5px;
+  right: 7px;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 4px;
+  border-radius: 999px;
+  background: var(--glacier);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 18px;
+  text-align: center;
+}
+.pad button.done::after { content: none; }
 .pad .erase { background: #e6ecf1; color: var(--night); }

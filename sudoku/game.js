@@ -212,10 +212,15 @@ function render() {
     el.classList.toggle('peer', peer);
     el.classList.toggle('same', !!selVal && i !== sel && v === selVal);
   }
-  // A number is greyed out once nine of it are on the board (right or wrong).
+  // Each number shows how many are left to place, and greys out once nine are on the board
+  // (right or wrong, so it doesn't give mistakes away).
   document.querySelectorAll('#pad [data-digit]').forEach((b) => {
     const d = Number(b.dataset.digit);
-    b.classList.toggle('done', d > 0 && counts[d] >= 9);
+    if (!d) return;
+    const left = Math.max(0, 9 - counts[d]);
+    b.dataset.left = left;
+    b.setAttribute('aria-label', `${d}, ${left} eftir`);
+    b.classList.toggle('done', left === 0);
   });
   filledEl.textContent = `${filled}/81`;
 }
