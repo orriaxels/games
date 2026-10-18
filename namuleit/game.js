@@ -211,6 +211,7 @@ function finishGame(won, delay) {
   const id = gameId;
   setTimeout(() => {
     if (id !== gameId) return;
+    $('look').hidden = won;   // after a loss the popup can be closed to see where the mines were
     if (won) {
       showResult('🎉', 'Þú vannst!', text);
       lbAfterWin('minesweeper', level, time);
@@ -336,6 +337,7 @@ $('levels').addEventListener('click', (e) => {
 
 faceEl.addEventListener('click', newGame);
 $('again').addEventListener('click', newGame);
+$('look').addEventListener('click', () => { overlayEl.hidden = true; });
 $('trophy').addEventListener('click', openRecords);
 
 newGame();
