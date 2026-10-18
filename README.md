@@ -10,6 +10,7 @@ Upphafssíðan býður upp á fimm leiki:
 - Ýttu á tölu til að sjá hvaða 8 reiti hún telur
 
 **Sudoku** (`sudoku/`)
+- Tvær stærðir: venjulegt 9×9, og lítið 6×6 (tölurnar 1 til 6, 2×3 kassar) fyrir yngri krakka
 - Veldu reit og ýttu svo á tölu, ⌫ strokar út
 - Rangar tölur sjást ekki strax: þegar allir reitir eru fylltir verða röngu tölurnar rauðar og eru taldar sem villur
 - Þraut sem er ekki búin vistast, svo það má loka appinu og halda áfram seinna
@@ -45,7 +46,7 @@ Ef vafragögnum (website data) er eytt í stillingum símans hverfa metin líka.
 
 ## Stigatafla (sameiginleg)
 
-Krakkarnir geta keppt sín á milli: hver sigur sendir tímann á sameiginlega stigatöflu
+Krakkarnir geta keppt sín á milli: hver sigur sendir tímann (stjörnur í Crowd Runner, stig í Tetris) á sameiginlega stigatöflu
 (🏅 takkinn á upphafssíðunni). Hún er geymd í ókeypis [Supabase](https://supabase.com) gagnagrunni.
 
 Uppsetning (einu sinni):

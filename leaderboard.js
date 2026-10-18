@@ -3,9 +3,14 @@
 // and leaderboard.sql). Everything here does nothing until the config has a url and key.
 // Needs ../common.js.
 
-const GAME_NAMES = { minesweeper: 'Minesweeper', sudoku: 'Sudoku', reiknigata: 'Reiknigáta', crowd: 'Crowd Runner' };
-// Crowd Runner ranks total stars, most first (one board per mode: medium and hard); the
-// others rank by time.
+const GAME_NAMES = {
+  minesweeper: 'Minesweeper', sudoku: 'Sudoku', sudoku6: 'Sudoku 6×6', reiknigata: 'Reiknigáta',
+  crowd: 'Crowd Runner', tetris: 'Tetris',
+};
+// What each game ranks, best first: the fastest time, except Crowd Runner (total stars,
+// one board per mode: medium and hard) and Tetris (points), where more is better.
+const SCORE_COLUMN = { crowd: 'stars', tetris: 'points' };
+const scoreColumn = (game) => SCORE_COLUMN[game] || 'seconds';
 const byStars = (game) => game === 'crowd';
 const NAME_MAX = 20;
 const lbStore = makeStore('lb-');
@@ -36,7 +41,7 @@ function lbFlush() {
         // rows sent together must all have the same keys; Crowd Runner's single 'stars'
         // board from before the modes is now its medium board
         body: JSON.stringify(sending.map((r) => ({
-          seconds: null, stars: null, ...r, ...(r.level === 'stars' && { level: 'medium' }),
+          seconds: null, stars: null, points: null, ...r, ...(r.level === 'stars' && { level: 'medium' }),
         }))),
       });
       // Sent, or rejected for good (bad data): either way don't send these again.
@@ -49,19 +54,19 @@ function lbFlush() {
 }
 window.addEventListener('online', () => lbFlush());
 
-// `score` is seconds, or total stars for Crowd Runner.
+// `score` is seconds, total stars for Crowd Runner, or points for Tetris.
 function lbSubmit(game, level, score) {
   if (!lbOn() || !playerName()) return Promise.resolve();
   const queue = lbStore.getJSON('queue', []);
-  queue.push({ player: playerName(), game, level, ...(byStars(game) ? { stars: score } : { seconds: Math.max(1, score) }) });
+  queue.push({ player: playerName(), game, level, [scoreColumn(game)]: Math.max(1, score) });
   lbStore.setJSON('queue', queue.slice(-50));
   return lbFlush();
 }
 
 // Each player's best on one game and level, best first.
 async function lbBoard(game, level) {
-  const order = byStars(game) ? 'stars.desc' : 'seconds.asc';
-  const q = `select=player,seconds,stars,created_at&game=eq.${game}&level=eq.${level}&order=${order},created_at.asc&limit=1000`;
+  const order = scoreColumn(game) + (SCORE_COLUMN[game] ? '.desc' : '.asc');
+  const q = `select=player,seconds,stars,points,created_at&game=eq.${game}&level=eq.${level}&order=${order},created_at.asc&limit=1000`;
   const res = await fetch(LEADERBOARD.url.replace(/\/$/, '') + '/rest/v1/scores?' + q, { headers: lbHeaders() });
   if (!res.ok) throw new Error('leaderboard ' + res.status);
   const best = new Map();

@@ -165,7 +165,7 @@
       const rec = makeRecords(st);
       const current = st.getJSON('current', null);
       const best = Object.keys(LEVEL_NAMES).find((lv) => rec.best(lv));
-      if (current && LEVEL_NAMES[current.level]) $(prefix + '-note').textContent = `▶ Halda áfram (${LEVEL_NAMES[current.level]})`;
+      if (current && LEVEL_NAMES[current.level]) $(prefix + '-note').textContent = `▶ Halda áfram (${current.size === 6 ? '6×6, ' : ''}${LEVEL_NAMES[current.level]})`;
       else if (best) $(prefix + '-note').textContent = `🏆 ${LEVEL_NAMES[best]}: ${clock(rec.best(best))}`;
     }
 

@@ -15,25 +15,31 @@ create table if not exists public.scores (
 create index if not exists scores_board on public.scores (game, level, seconds);
 
 -- Crowd Runner ranks total stars instead of time, with a board for each of its modes
--- (medium and hard). Safe to run again on a table made before this was added.
+-- (medium and hard), and Tetris ranks points. Sudoku 6×6 is its own game ('sudoku6').
+-- Safe to run again on a table made before these were added.
 alter table public.scores alter column seconds drop not null;
 alter table public.scores add column if not exists stars integer check (stars between 1 and 120);
+alter table public.scores add column if not exists points integer check (points between 1 and 100000000);
 alter table public.scores drop constraint if exists scores_game_check;
 alter table public.scores add constraint scores_game_check
-  check (game in ('minesweeper', 'sudoku', 'reiknigata', 'crowd'));
+  check (game in ('minesweeper', 'sudoku', 'sudoku6', 'reiknigata', 'crowd', 'tetris'));
 alter table public.scores drop constraint if exists scores_level_check;
 alter table public.scores drop constraint if exists scores_score_check;
 -- Crowd Runner first had one board, 'stars'; those scores were all played on medium.
 update public.scores set level = 'medium' where game = 'crowd' and level = 'stars';
 alter table public.scores add constraint scores_level_check
   check (level in ('easy', 'medium', 'hard'));
--- a Crowd Runner row has stars and no time (and no easy board); every other row a time
--- and no stars
+-- each row has exactly one kind of score: stars for Crowd Runner (which has no easy
+-- board), points for Tetris, a time for every other game
 alter table public.scores add constraint scores_score_check check (
-  case when game = 'crowd' then level <> 'easy' and stars is not null and seconds is null
-       else seconds is not null and stars is null end
+  case game
+    when 'crowd' then level <> 'easy' and stars is not null and seconds is null and points is null
+    when 'tetris' then points is not null and seconds is null and stars is null
+    else seconds is not null and stars is null and points is null
+  end
 );
 create index if not exists scores_stars_board on public.scores (game, level, stars desc);
+create index if not exists scores_points_board on public.scores (game, level, points desc);
 
 alter table public.scores enable row level security;
 

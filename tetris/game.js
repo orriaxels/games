@@ -232,6 +232,7 @@ function gameOver() {
   setTimeout(() => {
     if (state !== 'over') return;
     showResult(isRecord && score ? '🏆' : '🧱', 'Leik lokið!', text);
+    if (score) lbAfterWin('tetris', level, score);
   }, 600);
 }
 

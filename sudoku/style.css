@@ -7,10 +7,14 @@
   --cell: 36px;
 }
 
-/* Board: thin lines between cells, thick lines between the 3x3 boxes */
+/* Board size: its own row above the difficulty, a little slimmer */
+.app > .sizes { flex: none; }
+.sizes button { padding: 7px 0; }
+
+/* Board: thin lines between cells, thick lines between the boxes (3×3, or 2×3 on 6×6) */
 .board {
   display: grid;
-  grid-template-columns: repeat(9, var(--cell));
+  grid-template-columns: repeat(var(--n, 9), var(--cell));
   border: 3px solid var(--line);
   border-radius: 12px;
   overflow: hidden;
@@ -92,3 +96,4 @@
 }
 .pad button.done::after { content: none; }
 .pad .erase { background: #e6ecf1; color: var(--night); }
+.pad button[hidden] { display: none; }   /* 7, 8 and 9 on the 6×6 board */
