@@ -63,22 +63,30 @@ function lbSubmit(game, level, score) {
   return lbFlush();
 }
 
-// Each player's best on one game and level, best first.
+// Sudoku's two sizes share one board; each row there is marked 9×9 or 6×6.
+const SHARED_BOARD = { sudoku6: 'sudoku' };
+const boardGames = (game) => {
+  const board = SHARED_BOARD[game] || game;
+  return Object.keys(GAME_NAMES).filter((g) => (SHARED_BOARD[g] || g) === board);
+};
+
+// Each player's best on one board and level (per size on the shared Sudoku board), best first.
 async function lbBoard(game, level) {
   const order = scoreColumn(game) + (SCORE_COLUMN[game] ? '.desc' : '.asc');
-  const q = `select=player,seconds,stars,points,created_at&game=eq.${game}&level=eq.${level}&order=${order},created_at.asc&limit=1000`;
+  const q = `select=player,game,seconds,stars,points,created_at&game=in.(${boardGames(game).join(',')})`
+    + `&level=eq.${level}&order=${order},created_at.asc&limit=1000`;
   const res = await fetch(LEADERBOARD.url.replace(/\/$/, '') + '/rest/v1/scores?' + q, { headers: lbHeaders() });
   if (!res.ok) throw new Error('leaderboard ' + res.status);
   const best = new Map();
   for (const row of await res.json()) {
-    const key = row.player.trim().toLowerCase();
+    const key = row.player.trim().toLowerCase() + '|' + row.game;
     if (!best.has(key)) best.set(key, row);
   }
   return [...best.values()];
 }
 
-function rankOf(board, name) {
-  const i = board.findIndex((r) => r.player.trim().toLowerCase() === name.toLowerCase());
+function rankOf(board, name, game) {
+  const i = board.findIndex((r) => r.player.trim().toLowerCase() === name.toLowerCase() && r.game === game);
   return i < 0 ? null : i + 1;
 }
 
@@ -135,7 +143,7 @@ function lbAfterWin(game, level, score) {
     }
     try {
       const board = await lbBoard(game, level);
-      const rank = rankOf(board, playerName());
+      const rank = rankOf(board, playerName(), game);
       show(rank ? `🏅 ${rank}. sæti af ${board.length} á stigatöflunni` : '🏅 Komið á stigatöfluna');
     } catch {
       show('🏅 Komið á stigatöfluna');

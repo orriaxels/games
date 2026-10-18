@@ -19,13 +19,7 @@
     .levels button[hidden] { display: none; }
     .games { border-radius: 24px; }
     .games button { position: relative; display: grid; place-items: center; padding: 6px 0; border-radius: 20px; }
-    .games img { width: 42px; height: 42px; border-radius: 11px; opacity: 0.5; transition: opacity 180ms var(--ease-out), transform 180ms var(--ease-out); }
-    /* the small Sudoku shares the big one's icon, with its size on it */
-    .games .badge {
-      position: absolute; bottom: 3px; left: 50%; transform: translateX(-50%);
-      padding: 1px 4px; border-radius: 6px; background: #fff; color: var(--glacier-dark);
-      font-size: 10px; font-weight: 800; line-height: 1.2; white-space: nowrap;
-    }
+    .games img { width: 46px; height: 46px; border-radius: 12px; opacity: 0.5; transition: opacity 180ms var(--ease-out), transform 180ms var(--ease-out); }
     .games button.active { background: var(--game); box-shadow: 0 3px 0 var(--game-dark); }
     .games button.active img { opacity: 1; transform: scale(1.06); box-shadow: 0 0 0 2px #fff; }
     .refresh {
@@ -65,6 +59,10 @@
     .list .place { width: 36px; text-align: center; font-weight: 700; font-size: var(--s1); color: var(--night-soft); }
     .list .who { flex: 1; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .list .time { font-weight: 700; font-variant-numeric: tabular-nums; }
+    .list .size {
+      flex: none; padding: 2px 8px; border-radius: 999px;
+      background: #e6ecf1; color: var(--night-soft); font-size: var(--s-1); font-weight: 700;
+    }
     /* the top three get the display face, the winner biggest */
     .list li:nth-child(-n + 3) .who { font-family: var(--display); font-weight: 800; font-size: var(--s1); }
     .list li:first-child .who { font-size: var(--s2); }
@@ -85,7 +83,6 @@
     <nav class="levels games" id="games">
       <button type="button" data-game="minesweeper" aria-label="Minesweeper"><img src="../icons/namuleit.png" alt=""></button>
       <button type="button" data-game="sudoku" aria-label="Sudoku"><img src="../icons/sudoku.png" alt=""></button>
-      <button type="button" data-game="sudoku6" aria-label="Sudoku 6×6"><img src="../icons/sudoku.png" alt=""><span class="badge" aria-hidden="true">6×6</span></button>
       <button type="button" data-game="reiknigata" aria-label="Reiknigáta"><img src="../icons/reiknigata.png" alt=""></button>
       <button type="button" data-game="crowd" aria-label="Crowd Runner"><img src="../icons/crowd.png" alt=""></button>
       <button type="button" data-game="tetris" aria-label="Tetris"><img src="../icons/tetris.png" alt=""></button>
@@ -113,6 +110,7 @@
     const view = makeStore('lb-');
     let game = view.get('view-game', 'minesweeper');
     let level = view.get('view-level', 'easy');
+    game = SHARED_BOARD[game] || game;   // 6×6 Sudoku had its own tab for a while
     if (!GAME_NAMES[game]) game = 'minesweeper';
     if (!LEVEL_NAMES[level]) level = 'easy';
     let loadId = 0;
@@ -129,7 +127,6 @@
       sudoku: ['--glacier', '--glacier-dark'],
       reiknigata: ['--crowberry', '--crowberry-dark'],
       crowd: ['--lagoon', '--lagoon-dark'],
-      sudoku6: ['--glacier', '--glacier-dark'],
       tetris: ['--heather', '--heather-dark'],
     };
 
@@ -175,7 +172,14 @@
         const time = document.createElement('span');
         time.className = 'time';
         time.textContent = byStars(game) ? `⭐ ${row.stars}` : game === 'tetris' ? `${row.points} stig` : clock(row.seconds);
-        li.append(place, who, time);
+        li.append(place, who);
+        if (game === 'sudoku') {   // both sizes share this board
+          const size = document.createElement('span');
+          size.className = 'size';
+          size.textContent = row.game === 'sudoku6' ? '6×6' : '9×9';
+          li.append(size);
+        }
+        li.append(time);
         return li;
       }));
     }
