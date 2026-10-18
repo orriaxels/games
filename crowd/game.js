@@ -175,12 +175,15 @@ const starText = (s) => '★'.repeat(s) + '☆'.repeat(3 - s);
 const OUTFITS = [
   { name: 'Blár', body: '#2f7fc4', dark: '#1d5b93' },
   { name: 'Grænn', body: '#3f9a4a', dark: '#26692f' },
+  { name: 'Sægrænn', body: '#2a9d8f', dark: '#1c6d63' },
   { name: 'Fjólublár', body: '#7b4bb3', dark: '#53307f' },
-  { name: 'Appelsínugulur', body: '#f08a24', dark: '#b45f0c' },
   { name: 'Bleikur', body: '#e45fa4', dark: '#a83a73' },
   { name: 'Gulur', body: '#f2c230', dark: '#a8820f' },
 ];
-let outfit = OUTFITS[Number(store.get('outfit', '0'))] || OUTFITS[0];
+// Saved by name; the first version saved a position in this older list.
+const OLD_OUTFITS = ['Blár', 'Grænn', 'Fjólublár', 'Appelsínugulur', 'Bleikur', 'Gulur'];
+const savedOutfit = store.get('outfit', '');
+let outfit = OUTFITS.find((o) => o.name === (OLD_OUTFITS[savedOutfit] || savedOutfit)) || OUTFITS[0];
 
 // Who runs in the group. Animals have fur (head and arms), legs and a darker shade for
 // ears and spikes; people use the skin colour and dark trousers in the outfit's colour.
@@ -1001,7 +1004,7 @@ $('sound').addEventListener('click', () => {
 });
 
 function drawOutfits() {
-  $('outfits').replaceChildren(...OUTFITS.map((o, i) => {
+  $('outfits').replaceChildren(...OUTFITS.map((o) => {
     const b = document.createElement('button');
     b.type = 'button';
     b.style.setProperty('--c', o.body);
@@ -1010,7 +1013,7 @@ function drawOutfits() {
     b.setAttribute('aria-pressed', String(o === outfit));
     b.addEventListener('click', () => {
       outfit = o;
-      store.set('outfit', String(i));
+      store.set('outfit', o.name);
       drawOutfits();
     });
     return b;
