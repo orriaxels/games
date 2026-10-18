@@ -39,6 +39,7 @@
   box-shadow: inset 0 0 0 2px var(--wool), var(--edge) var(--wool);
 }
 .sound:active { transform: translateY(3px); }
+.sound:disabled { opacity: 0.4; transform: none; }
 .level-btn, .sound { transition: transform var(--press) var(--ease-out), box-shadow var(--press) var(--ease-out); }
 
 /* Result popup: two buttons side by side, each on one line */
@@ -60,6 +61,15 @@
 }
 .outfits button:active { transform: translateY(2px); box-shadow: 0 1px 0 var(--c-dark); }
 .outfits button[aria-pressed="true"] { box-shadow: 0 3px 0 var(--c-dark), 0 0 0 3px #fff, 0 0 0 6px var(--night); }
+
+/* Who runs: people or an animal, above the clothes colour */
+.creatures { display: flex; flex-wrap: wrap; justify-content: center; gap: 4px; margin-bottom: 14px; }
+.creatures button {
+  width: 34px; height: 34px; padding: 0; border: none; border-radius: 10px;
+  background: #e6f3f2; font-size: 19px; box-shadow: 0 3px 0 #c5dedc;
+}
+.creatures button:active { transform: translateY(2px); box-shadow: 0 1px 0 #c5dedc; }
+.creatures button[aria-pressed="true"] { background: var(--lagoon); box-shadow: 0 3px 0 var(--lagoon-dark); }
 
 /* Level picker */
 .picker { width: min(360px, 92vw); max-height: 86vh; max-height: 86dvh; overflow-y: auto; overscroll-behavior: contain; }

@@ -182,6 +182,19 @@ const OUTFITS = [
 ];
 let outfit = OUTFITS[Number(store.get('outfit', '0'))] || OUTFITS[0];
 
+// Who runs in the group. Animals have fur (head and arms), legs and a darker shade for
+// ears and spikes; people use the skin colour and dark trousers in the outfit's colour.
+const CREATURES = {
+  person: { emoji: '🧑', name: 'Fólk' },
+  bear: { emoji: '🐻', name: 'Björn', fur: '#8b5a2b', legs: '#8b5a2b', dark: '#5e3b1b' },
+  penguin: { emoji: '🐧', name: 'Mörgæs', fur: '#23272f', legs: '#f5a623', dark: '#111' },
+  dog: { emoji: '🐕', name: 'Golden retriever', fur: '#e0aa4f', legs: '#e0aa4f', dark: '#b07a2a' },
+  gorilla: { emoji: '🦍', name: 'Górilla', fur: '#3b3b40', legs: '#3b3b40', dark: '#26262a' },
+  shark: { emoji: '🦈', name: 'Hákarl', fur: '#7f97ab', legs: '#7f97ab', dark: '#5c7285' },
+  trex: { emoji: '🦖', name: 'Grameðla', fur: '#5aa05a', legs: '#5aa05a', dark: '#3c7a3c' },
+};
+let creature = CREATURES[store.get('creature', '')] ? store.get('creature', '') : 'person';
+
 // --- sound: little tones made in the browser, no files ---
 
 let soundOn = store.get('sound', '1') === '1';
@@ -237,6 +250,7 @@ function newRun() {
   dist = 0;
   steer = crowdX = cam = 0;
   state = 'ready';
+  if (paused) setPaused(false);
   battle = null;
   popups = [];
   particles = [];
@@ -634,32 +648,70 @@ function drawSpikes(it, d1) {
   }
 }
 
-// One runner. `phase` swings the legs; `still` is for the red groups waiting on the road.
-function runner(px, py, s, phase, body, dark, still, alpha = 1) {
+// One runner, seen from behind. `phase` swings the legs; `still` is for the red groups
+// waiting on the road. `kind` is a key of CREATURES: animals keep the shirt in `body`
+// but get their own fur, legs, head and tail.
+function runner(px, py, s, phase, body, dark, still, alpha = 1, kind = 'person') {
+  const c = CREATURES[kind];
   ctx.globalAlpha = alpha;
   ctx.fillStyle = 'rgba(0, 0, 0, 0.13)';
   ctx.beginPath();
   ctx.ellipse(px, py, s * 0.7, s * 0.24, 0, 0, Math.PI * 2);
   ctx.fill();
   const swing = still ? 0.15 : Math.sin(phase) * 0.6;
-  ctx.strokeStyle = dark;
+  ctx.strokeStyle = c.legs || dark;
   ctx.lineWidth = Math.max(1.5, s * 0.28);
   ctx.lineCap = 'round';
   const hipY = py - s * 0.85;
-  for (const sgn of [1, -1]) {
+  const blob = (x, y, rx, ry, color) => {
+    ctx.fillStyle = color;
     ctx.beginPath();
-    ctx.moveTo(px + sgn * s * 0.15, hipY);
-    ctx.lineTo(px + sgn * s * 0.15 + Math.sin(swing * sgn) * s * 0.55, py - s * 0.05);
-    ctx.stroke();
+    ctx.ellipse(px + x * s, py + y * s, rx * s, ry * s, 0, 0, Math.PI * 2);
+    ctx.fill();
+  };
+  if (kind === 'penguin') {   // a round body on two waddling feet instead of legs
+    for (const sgn of [1, -1]) blob(sgn * 0.17 + Math.sin(swing * sgn) * 0.12, -0.06, 0.15, 0.07, c.legs);
+    blob(0, -0.6, 0.4, 0.5, c.fur);
+  } else {
+    for (const sgn of [1, -1]) {
+      ctx.beginPath();
+      ctx.moveTo(px + sgn * s * 0.15, hipY);
+      ctx.lineTo(px + sgn * s * 0.15 + Math.sin(swing * sgn) * s * 0.55, py - s * 0.05);
+      ctx.stroke();
+    }
   }
+  const tri = (pts, color) => {
+    ctx.fillStyle = color;
+    ctx.beginPath();
+    pts.forEach(([x, y], i) => (i ? ctx.lineTo : ctx.moveTo).call(ctx, px + x * s, py + y * s));
+    ctx.fill();
+  };
+  // arms and flippers hang beside the shirt
+  if (kind === 'gorilla') for (const sgn of [1, -1]) blob(sgn * 0.45, -1.15, 0.17, 0.5, c.fur);
+  if (kind === 'penguin') for (const sgn of [1, -1]) blob(sgn * 0.42, -1.3, 0.1, 0.32, c.fur);
   ctx.fillStyle = body;
   ctx.beginPath();
   ctx.roundRect(px - s * 0.4, py - s * 1.85, s * 0.8, s * 1.1, s * 0.38);
   ctx.fill();
-  ctx.fillStyle = '#ffe0c2';
-  ctx.beginPath();
-  ctx.arc(px, py - s * 2.15, s * 0.38, 0, Math.PI * 2);
-  ctx.fill();
+  // head, plus whatever sticks out of it
+  if (kind === 'bear') for (const sgn of [1, -1]) blob(sgn * 0.27, -2.42, 0.13, 0.13, c.fur);
+  if (kind === 'shark') tri([[-0.13, -2.4], [0.06, -2.95], [0.17, -2.38]], c.fur);
+  if (kind === 'gorilla') blob(0, -2.36, 0.22, 0.2, c.fur);
+  blob(0, -2.15, kind === 'trex' ? 0.42 : 0.38, kind === 'shark' ? 0.44 : 0.38, c.fur || '#ffe0c2');
+  if (kind === 'dog') for (const sgn of [1, -1]) blob(sgn * 0.36, -2.06, 0.12, 0.26, c.dark);
+  if (kind === 'trex') for (const x of [-0.18, 0, 0.18]) tri([[x - 0.08, -2.5], [x, -2.72], [x + 0.08, -2.5]], c.dark);
+  // tails reach back towards the camera, so they go on top
+  const wag = Math.sin(phase * 2);
+  if (kind === 'dog') {
+    ctx.strokeStyle = c.fur;
+    ctx.lineWidth = Math.max(1.5, s * 0.2);
+    ctx.beginPath();
+    ctx.moveTo(px, py - s * 0.95);
+    ctx.lineTo(px + wag * s * 0.35, py - s * 1.45);
+    ctx.stroke();
+  }
+  if (kind === 'shark') tri([[0, -0.95], [-0.4 + wag * 0.08, -0.25], [0, -0.5], [0.4 + wag * 0.08, -0.25]], c.fur);
+  if (kind === 'trex') tri([[-0.24, -1.0], [0.24, -1.0], [wag * 0.25, 0.1]], c.fur);
   ctx.globalAlpha = 1;
 }
 
@@ -675,7 +727,7 @@ function drawCrowd() {
     const depth = 1 - u.oz * 0.35;                    // the back rows a touch smaller
     const s = ((0.042 * vScale()) / PLAYER_D) * depth * (0.6 + 0.4 * grow);
     const bob = state === 'running' ? Math.abs(Math.sin(t * 12 + i * 1.7)) * s * 0.25 : 0;
-    runner(sx(cx, PLAYER_D) + u.ox * unit, y0 - u.oz * unit - bob, s, t * 14 + i * 1.3, outfit.body, outfit.dark, state !== 'running' && state !== 'won', fade);
+    runner(sx(cx, PLAYER_D) + u.ox * unit, y0 - u.oz * unit - bob, s, t * 14 + i * 1.3, outfit.body, outfit.dark, state !== 'running' && state !== 'won', fade, creature);
   }
   if (count > 0 && state !== 'won' && state !== 'battle') {
     pill(String(count), sx(cx, PLAYER_D), gy(PLAYER_D + groupRadius(), 0.2) - 34, 22, '#fff', outfit.dark);
@@ -814,13 +866,46 @@ function draw() {
   }
 }
 
+// --- pause: the road is covered while paused, so it can't be used to study the gates ---
+
+let paused = false;
+const canPause = () => state === 'running' || state === 'battle';
+
+function setPaused(on) {
+  if (on && !canPause()) return;
+  paused = on;
+  held.ArrowLeft = held.ArrowRight = false;
+  drag = null;
+  $('pause').textContent = paused ? '▶️' : '⏸️';
+  $('pause').setAttribute('aria-label', paused ? 'Halda áfram' : 'Hlé');
+}
+
+function drawPaused() {
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  ctx.fillStyle = '#1b2a4a';
+  ctx.fillRect(0, 0, W, H);
+  ctx.fillStyle = '#fff';
+  ctx.font = `800 ${Math.round(Math.min(46, W * 0.11))}px ${FONT}`;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText('Hlé', W / 2, H * 0.36);
+  pill('Ýttu til að halda áfram', W / 2, H * 0.48, 22, '#ff8a1f', '#1b2a4a');
+}
+
+document.addEventListener('visibilitychange', () => { if (document.hidden) setPaused(true); });
+
 let last = 0;
 function frame(ts) {
   const dt = Math.min(0.05, (ts - last) / 1000 || 0);
   last = ts;
+  const off = !canPause() && !paused;
+  if ($('pause').disabled !== off) $('pause').disabled = off;
   if (!document.hidden && W) {
-    step(dt);
-    draw();
+    if (paused) drawPaused();
+    else {
+      step(dt);
+      draw();
+    }
   }
   requestAnimationFrame(frame);
 }
@@ -840,6 +925,7 @@ function begin() {
 }
 
 canvas.addEventListener('pointerdown', (e) => {
+  if (paused) { setPaused(false); return; }
   if (state === 'won' || state === 'lost') return;
   begin();
   canvas.setPointerCapture(e.pointerId);
@@ -867,6 +953,12 @@ const KEY_NUDGE = 0.12;
 const held = { ArrowLeft: false, ArrowRight: false };
 document.addEventListener('keydown', (e) => {
   if (e.target.closest('input')) return;
+  if (e.key === 'p' || e.key === 'P' || e.key === 'Escape' || (e.key === ' ' && paused)) {
+    e.preventDefault();
+    setPaused(!paused);
+    return;
+  }
+  if (paused) return;
   if (e.key in held) {
     e.preventDefault();
     if (state === 'won' || state === 'lost') return;
@@ -918,8 +1010,25 @@ function drawOutfits() {
   }));
 }
 
+function drawCreatures() {
+  $('creatures').replaceChildren(...Object.entries(CREATURES).map(([key, c]) => {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.textContent = c.emoji;
+    b.setAttribute('aria-label', c.name);
+    b.setAttribute('aria-pressed', String(key === creature));
+    b.addEventListener('click', () => {
+      creature = key;
+      store.set('creature', key);
+      drawCreatures();
+    });
+    return b;
+  }));
+}
+
 function openPicker() {
   $('picker-total').textContent = `⭐ ${totalStars()} af ${MAX_LEVEL * 3}`;
+  drawCreatures();
   drawOutfits();
   $('level-grid').replaceChildren(...[...Array(MAX_LEVEL)].map((_, i) => {
     const n = i + 1, b = document.createElement('button');
@@ -941,7 +1050,8 @@ function openPicker() {
   $('level-grid').querySelector('.current')?.scrollIntoView({ block: 'center' });
 }
 
-$('level-btn').addEventListener('click', openPicker);
+$('level-btn').addEventListener('click', () => { setPaused(true); openPicker(); });
+$('pause').addEventListener('click', () => setPaused(!paused));
 $('new').addEventListener('click', newRun);
 $('again').addEventListener('click', newRun);
 $('next').addEventListener('click', () => setLevel(levelNo + 1));
