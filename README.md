@@ -2,7 +2,7 @@
 
 Barnvænir leikir á íslensku sem eru settir upp á síma sem vefapp (PWA). Engin app-verslun nauðsynleg.
 
-Upphafssíðan býður upp á þrjá leiki:
+Upphafssíðan býður upp á fimm leiki:
 
 **Minesweeper** (`namuleit/`)
 - **Ýttu** til að grafa, **haltu inni** til að flagga (eða skiptu stóra takkanum yfir í *Flagga*)
@@ -30,6 +30,14 @@ Upphafssíðan býður upp á þrjá leiki:
 - 40 borð sem þyngjast smám saman (fleiri hlið og bardagar, svo −, ÷, broddar og broddar á ferð).
   Hvert borð er alltaf eins, að klára það opnar það næsta og gefur 1–3 stjörnur eftir því hversu margir eru eftir
 - Stærð kastalans er fundin með því að spila borðið mörgum sinnum í tölvunni sem krakki sem velur oftast rétt
+
+**Tetris** (`tetris/`)
+- Kubbarnir detta í brunninn; full röð hverfur og gefur stig (fleiri raðir í einu gefa meira, 4 í einu er TETRIS)
+- Takkarnir undir borðinu: færa til vinstri/hægri, hraðar niður, alla leið niður og snúa.
+  Líka hægt að ýta á borðið til að snúa, draga til að færa og strjúka hratt niður til að sleppa.
+  Á tölvu: örvar, upp eða X snýr, bil sleppir, P gerir hlé
+- Létt / Miðlungs / Erfitt ræður byrjunarhraðanum (1, 4 eða 8) og hraðinn eykst um einn á hverjum 10 röðum
+- Leikur sem er ekki búinn vistast, svo það má loka appinu og halda áfram seinna
 
 Allir leikirnir eru með Létt / Miðlungs / Erfitt og 🏆 takka sem sýnir metið á hverju stigi og síðustu leiki.
 Metin eru geymd í vafranum á hverjum síma fyrir sig (ekki á netinu), svo hvert barn á sín eigin met.
@@ -70,7 +78,7 @@ aftur á skjáinn athugar það hvort ný útgáfa sé komin og endurhleður sig
 
 - `index.html`: upphafssíðan
 - `common.css`, `common.js`: útlit og hjálparföll sem allar síðurnar nota (met, sprettigluggar, geymsla)
-- `namuleit/` (Minesweeper), `sudoku/`, `reiknigata/`: leikirnir
+- `namuleit/` (Minesweeper), `sudoku/`, `reiknigata/`, `crowd/` (Crowd Runner), `tetris/`: leikirnir
 - `sw.js`, `manifest.json`: uppsetning og offline-virkni
 
 ## Keyra á eigin tölvu

@@ -1,0 +1,55 @@
+/* Tetris. Shared layout and popups are in ../common.css. */
+:root {
+  --game: var(--heather);
+  --game-dark: var(--heather-dark);
+}
+
+#game {
+  display: block;
+  width: 100%;
+  height: 100%;
+  touch-action: none;   /* dragging moves the piece; the page shouldn't scroll or zoom */
+}
+
+/* Pause, where the other games have a second stat */
+.pause {
+  width: 46px;
+  height: 46px;
+  border: none;
+  border-radius: 50%;
+  background: #fff;
+  font-size: 20px;
+  box-shadow: inset 0 0 0 2px var(--wool), var(--edge) var(--wool);
+  transition: transform var(--press) var(--ease-out);
+}
+.pause:active { transform: translateY(3px); }
+.pause:disabled { opacity: 0.4; transform: none; }
+
+/* The five big buttons under the board: move on the left, drop and turn on the right */
+.controls {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr 1.3fr;
+  gap: 8px;
+}
+.controls button {
+  height: 60px;
+  border: none;
+  border-radius: 18px;
+  background: var(--heather);
+  color: #fff;
+  box-shadow: var(--edge) var(--heather-dark);
+  touch-action: none;   /* holding a button repeats; no zoom or scroll from it */
+  transition: transform var(--press) var(--ease-out), box-shadow var(--press) var(--ease-out);
+}
+.controls button.turn { background: var(--puffin); color: var(--night); box-shadow: var(--edge) var(--puffin-dark); }
+.controls button:active, .controls button.held { transform: translateY(3px); box-shadow: 0 1px 0 var(--heather-dark); }
+.controls button.turn:active { box-shadow: 0 1px 0 var(--puffin-dark); }
+.controls svg {
+  width: 28px;
+  height: 28px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}

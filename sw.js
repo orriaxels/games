@@ -1,6 +1,6 @@
 // Offline support. When online, always fetch the newest files (skipping the browser's
 // own cache) and keep a copy; when offline or very slow, use the copy instead.
-const CACHE = 'leikir-v28';
+const CACHE = 'leikir-v29';
 const NETWORK_TIMEOUT_MS = 4000;
 const ASSETS = [
   './',
@@ -15,6 +15,11 @@ const ASSETS = [
   'icons/sudoku.png',
   'icons/reiknigata.png',
   'icons/crowd.png',
+  'icons/tetris.png',
+  'tetris/',
+  'tetris/index.html',
+  'tetris/style.css',
+  'tetris/game.js',
   'crowd/',
   'crowd/index.html',
   'crowd/style.css',

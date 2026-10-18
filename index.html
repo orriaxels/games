@@ -72,6 +72,7 @@
     .tile.sd { --c: var(--glacier); --c-dark: var(--glacier-dark); }
     .tile.rg { --c: var(--crowberry); --c-dark: var(--crowberry-dark); }
     .tile.cr { --c: var(--lagoon); --c-dark: var(--lagoon-dark); }
+    .tile.tt { --c: var(--heather); --c-dark: var(--heather-dark); }
     .tile img {
       flex: none;
       width: 80px;
@@ -134,6 +135,13 @@
         <span class="tile-note" id="cr-note">Stækkaðu hópinn</span>
       </span>
     </a>
+    <a class="tile tt" href="tetris/">
+      <img src="icons/tetris.png" alt="">
+      <span class="tile-text">
+        <span class="tile-name">Tetris</span>
+        <span class="tile-note" id="tt-note">Fylltu raðirnar</span>
+      </span>
+    </a>
 
     <a class="leaderboard" id="leaderboard" href="stigatafla/" hidden>🏅 Stigatafla</a>
   </main>
@@ -166,6 +174,13 @@
       const stars = Object.values(crProgress.stars || {}).reduce((a, b) => a + b, 0);
       $('cr-note').textContent = `Borð ${crProgress.unlocked}${stars ? `, ⭐ ${stars}` : ''}`;
     }
+
+    const tt = makeStore('tt-');
+    const ttCurrent = tt.getJSON('current', null);
+    const ttRecords = makeRecords(tt, { higher: true });
+    const ttBest = Object.keys(LEVEL_NAMES).find((lv) => ttRecords.best(lv));
+    if (ttCurrent && LEVEL_NAMES[ttCurrent.level]) $('tt-note').textContent = `▶ Halda áfram (${LEVEL_NAMES[ttCurrent.level]})`;
+    else if (ttBest) $('tt-note').textContent = `🏆 ${LEVEL_NAMES[ttBest]}: ${ttRecords.best(ttBest)} stig`;
 
     // Leaderboard: the button, and who's playing on this phone.
     $('leaderboard').hidden = !lbOn();
