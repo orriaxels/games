@@ -180,6 +180,17 @@ function lose(hit) {
     if (!c.mine && c.flag) els[i].innerHTML = '<span>❌</span>';
   });
   others.forEach((i, k) => setTimeout(() => { els[i].innerHTML = '<span>💣</span>'; }, 40 * k));
+  // then open every square that was left, so the whole board can be seen
+  const id = gameId;
+  setTimeout(() => {
+    if (id !== gameId) return;
+    cells.forEach((c, i) => {
+      if (c.mine || c.open || c.flag) return;
+      els[i].classList.add('open', 'revealed');
+      els[i].textContent = c.n || '';
+      if (c.n) els[i].classList.add('n' + c.n);
+    });
+  }, 40 * others.length + 150);
   finishGame(false, 700 + 40 * others.length);
 }
 

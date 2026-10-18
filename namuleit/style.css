@@ -52,6 +52,7 @@
 }
 .cell.open { background: var(--dirt-1); }
 .cell.open.alt { background: var(--dirt-2); }
+.cell.revealed { opacity: 0.6; }   /* opened by the game after a loss, not dug by the player */
 .cell.boom { background: var(--flag); }
 .cell.peek { box-shadow: inset 0 0 0 3px var(--puffin); animation: glow 0.5s ease-in-out 3 alternate; }
 .cell.peek-source { box-shadow: inset 0 0 0 3px #fff; }
