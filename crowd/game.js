@@ -212,16 +212,16 @@ const OLD_OUTFITS = ['Blár', 'Grænn', 'Fjólublár', 'Appelsínugulur', 'Bleik
 const savedOutfit = store.get('outfit', '');
 let outfit = OUTFITS.find((o) => o.name === (OLD_OUTFITS[savedOutfit] || savedOutfit)) || OUTFITS[0];
 
-// Who runs in the group. Animals have fur (head and arms), legs and a darker shade for
-// ears and spikes; people use the skin colour and dark trousers in the outfit's colour.
+// Who runs in the group (each is drawn by BODIES). Animals have fur (or feathers or
+// scales) and a darker shade for ears, tails and spikes; people wear the outfit.
 const CREATURES = {
   person: { emoji: '🧑', name: 'Fólk' },
-  bear: { emoji: '🐻', name: 'Björn', fur: '#8b5a2b', legs: '#8b5a2b', dark: '#5e3b1b' },
-  penguin: { emoji: '🐧', name: 'Mörgæs', fur: '#23272f', legs: '#f5a623', dark: '#111' },
-  dog: { emoji: '🐕', name: 'Golden retriever', fur: '#e0aa4f', legs: '#e0aa4f', dark: '#b07a2a' },
-  gorilla: { emoji: '🦍', name: 'Górilla', fur: '#3b3b40', legs: '#3b3b40', dark: '#26262a', back: '#7d7d86' },   // a silverback
-  shark: { emoji: '🦈', name: 'Hákarl', fur: '#7f97ab', legs: '#7f97ab', dark: '#5c7285' },
-  trex: { emoji: '🦖', name: 'Grameðla', fur: '#5aa05a', legs: '#5aa05a', dark: '#3c7a3c' },
+  bear: { emoji: '🐻', name: 'Björn', fur: '#8b5a2b', dark: '#5e3b1b' },
+  penguin: { emoji: '🐧', name: 'Mörgæs', fur: '#23272f', dark: '#111', feet: '#f5a623' },
+  dog: { emoji: '🐕', name: 'Golden retriever', fur: '#e0aa4f', dark: '#b07a2a' },
+  gorilla: { emoji: '🦍', name: 'Górilla', fur: '#3b3b40', dark: '#26262a', back: '#7d7d86' },   // a silverback
+  shark: { emoji: '🦈', name: 'Hákarl', fur: '#7f97ab', dark: '#5c7285' },
+  trex: { emoji: '🦖', name: 'Grameðla', fur: '#5aa05a', dark: '#3c7a3c' },
 };
 let creature = CREATURES[store.get('creature', '')] ? store.get('creature', '') : 'person';
 // The group's main and dark colour: the clothes on people, the fur on animals.
@@ -693,72 +693,147 @@ function drawSpikes(it, d1) {
   }
 }
 
+// Shapes for drawing one runner, in units of its size `s` with the feet at 0,0 and
+// up being negative. Set up by runner() before a BODIES function draws.
+let unitPx = 1;   // screen pixels per unit, so thin lines stay at least 1.5px
+function ell(x, y, rx, ry, color, rot = 0) {
+  ctx.fillStyle = color;
+  ctx.beginPath();
+  ctx.ellipse(x, y, rx, ry, rot, 0, Math.PI * 2);
+  ctx.fill();
+}
+function poly(pts, color) {
+  ctx.fillStyle = color;
+  ctx.beginPath();
+  pts.forEach(([x, y], i) => (i ? ctx.lineTo(x, y) : ctx.moveTo(x, y)));
+  ctx.fill();
+}
+function limb(x1, y1, x2, y2, w, color) {
+  ctx.strokeStyle = color;
+  ctx.lineWidth = Math.max(1.5 / unitPx, w);
+  ctx.lineCap = 'round';
+  ctx.beginPath();
+  ctx.moveTo(x1, y1);
+  ctx.lineTo(x2, y2);
+  ctx.stroke();
+}
+
+// How each kind moves, seen from behind as it runs away from the camera. `sw` swings
+// from -1 to 1 with each step (0 when standing still); `ph` is the raw step phase.
+const BODIES = {
+  // a person: legs swinging under a shirt
+  person(sw, ph, c, body, dark, still) {
+    const swing = still ? 0.15 : sw * 0.6;
+    for (const sgn of [1, -1]) limb(sgn * 0.15, -0.85, sgn * 0.15 + Math.sin(swing * sgn) * 0.55, -0.05, 0.28, dark);
+    ctx.fillStyle = body;
+    ctx.beginPath();
+    ctx.roundRect(-0.4, -1.85, 0.8, 1.1, 0.38);
+    ctx.fill();
+    ell(0, -2.15, 0.38, 0.38, '#ffe0c2');
+  },
+  // a penguin waddles: the whole body rocks from foot to foot, flippers held out
+  penguin(sw, ph, c) {
+    const rock = Math.sin(ph * 0.6);
+    for (const sgn of [1, -1]) ell(sgn * 0.2, -Math.max(0, rock * sgn) * 0.14, 0.18, 0.08, c.feet);
+    ctx.save();
+    ctx.rotate(rock * 0.2);
+    for (const sgn of [1, -1]) ell(sgn * 0.5, -1.1, 0.1, 0.42, c.fur, sgn * (0.55 + Math.abs(rock) * 0.25));
+    ell(0, -0.95, 0.5, 0.92, c.fur);
+    ell(0, -1.9, 0.36, 0.34, c.fur);
+    ctx.restore();
+  },
+  // Four-legged animals are seen from above and behind, the way the camera looks down
+  // the road: a long back stretching away, legs out at the sides, the head at the far end.
+  // A bear: heavy and broad, a hump over the shoulders, round ears, short thick legs.
+  bear(sw, ph, c) {
+    const b = Math.abs(sw) * 0.1;
+    for (const sgn of [1, -1]) {
+      limb(sgn * 0.3, -1.4 - b, sgn * 0.55, -1.15 - Math.max(0, -sw) * 0.2, 0.26, c.dark);   // front legs
+      limb(sgn * 0.34, -0.5 - b, sgn * 0.56, -0.1 - Math.max(0, sw) * 0.2, 0.32, c.fur);     // back legs
+    }
+    ell(0, -0.95 - b, 0.52, 0.72, c.fur);
+    ell(0, -1.45 - b, 0.44, 0.3, c.fur);   // shoulder hump
+    ell(0, -0.3 - b, 0.08, 0.07, c.dark);  // stubby tail
+    for (const sgn of [1, -1]) ell(sgn * 0.2, -2.0 - b, 0.1, 0.1, c.fur);
+    ell(0, -1.82 - b, 0.27, 0.24, c.fur);
+  },
+  // A golden retriever: slimmer, longer legs, floppy ears, tail up and wagging.
+  dog(sw, ph, c) {
+    const b = Math.abs(sw) * 0.12;
+    for (const sgn of [1, -1]) {
+      limb(sgn * 0.2, -1.35 - b, sgn * 0.42, -1.0 - Math.max(0, -sw) * 0.25, 0.15, c.dark);  // front legs
+      limb(sgn * 0.24, -0.55 - b, sgn * 0.44, -0.08 - Math.max(0, sw) * 0.25, 0.2, c.fur);   // back legs
+    }
+    ell(0, -0.98 - b, 0.36, 0.66, c.fur);
+    ell(0, -1.85 - b, 0.25, 0.24, c.fur);
+    for (const sgn of [1, -1]) ell(sgn * 0.26, -1.78 - b, 0.08, 0.2, c.dark, sgn * (0.25 + sw * 0.15));
+    limb(0, -0.4 - b, Math.sin(ph * 2) * 0.4, -0.05 - b, 0.14, c.dark);   // the tail, wagging behind
+  },
+  // a gorilla knuckle-walks: long arms reach the ground, a hunched silver back
+  gorilla(sw, ph, c) {
+    const b = Math.abs(sw) * 0.06;
+    for (const sgn of [1, -1]) limb(sgn * 0.22, -0.7, sgn * 0.24, -0.06 - Math.max(0, -sw * sgn) * 0.14, 0.3, c.fur);
+    for (const sgn of [1, -1]) {
+      const lift = Math.max(0, sw * sgn) * 0.16;
+      limb(sgn * 0.5, -1.5 - b, sgn * 0.64, -0.12 - lift, 0.3, c.fur);
+      ell(sgn * 0.64, -0.08 - lift, 0.15, 0.1, c.dark);   // knuckles
+    }
+    ell(0, -1.6 - b, 0.62, 0.36, c.fur);
+    ell(0, -1.1 - b, 0.52, 0.55, c.fur);
+    ell(0, -1.05 - b, 0.38, 0.36, c.back);
+    ell(0, -2.18 - b, 0.15, 0.13, c.fur);   // the crest on top of the head
+    ell(0, -1.98 - b, 0.27, 0.28, c.fur);
+  },
+  // a shark swims along just above the road, swishing its tail fin from side to side
+  shark(sw, ph, c) {
+    const swish = Math.sin(ph * 0.7), x = swish * 0.08;
+    ctx.save();
+    ctx.translate(0, -0.25 + Math.sin(ph * 0.35) * 0.06);
+    for (const sgn of [1, -1]) poly([[x + sgn * 0.3, -0.85], [x + sgn * 0.85, -0.45], [x + sgn * 0.25, -0.6]], c.dark);
+    poly([[x - 0.13, -1.35], [x + 0.06, -2.0], [x + 0.19, -1.35]], c.fur);
+    ell(x, -0.95, 0.42, 0.55, c.fur);
+    ell(x, -0.6, 0.3, 0.2, '#e6edf2');   // pale belly underneath
+    ctx.translate(0, -0.95);
+    ctx.rotate(swish * 0.35);
+    poly([[0, 0], [-0.1, -0.85], [0.13, -0.05]], c.dark);
+    poly([[0, 0], [-0.04, 0.55], [0.11, 0.05]], c.dark);
+    ctx.restore();
+  },
+  // a T-rex stomps on thick legs, tiny arms out, spikes down its back, tail swinging
+  trex(sw, ph, c) {
+    const b = Math.abs(sw) * 0.1;
+    for (const sgn of [1, -1]) {
+      const fx = sgn * 0.27 + Math.sin(sw * 0.6 * sgn) * 0.35;
+      limb(sgn * 0.27, -0.95 - b, fx, -0.1, 0.36, c.fur);
+      ell(fx, -0.06, 0.18, 0.08, c.dark);
+    }
+    ell(0, -1.35 - b, 0.5, 0.62, c.fur);
+    for (const sgn of [1, -1]) limb(sgn * 0.42, -1.55 - b, sgn * 0.56, -1.4 - b + sw * sgn * 0.05, 0.1, c.dark);
+    ell(0, -2.2 - b, 0.37, 0.33, c.fur);
+    for (let k = 0; k < 5; k++) {
+      const y = -2.45 + k * 0.28 - b;
+      poly([[-0.07, y + 0.1], [0, y - 0.08], [0.07, y + 0.1]], c.dark);
+    }
+    const tip = Math.sin(ph * 0.5) * 0.45;
+    poly([[-0.28, -1.05 - b], [0.28, -1.05 - b], [tip, 0.05]], c.dark);
+  },
+};
+
 // One runner, seen from behind. `phase` swings the legs; `still` is for the red groups
 // waiting on the road. `kind` is a key of CREATURES: people wear `body` and `dark`,
 // animals are their own colour all over.
 function runner(px, py, s, phase, body, dark, still, alpha = 1, kind = 'person') {
-  const c = CREATURES[kind];
   ctx.globalAlpha = alpha;
   ctx.fillStyle = 'rgba(0, 0, 0, 0.13)';
   ctx.beginPath();
   ctx.ellipse(px, py, s * 0.7, s * 0.24, 0, 0, Math.PI * 2);
   ctx.fill();
-  const swing = still ? 0.15 : Math.sin(phase) * 0.6;
-  ctx.strokeStyle = c.legs || dark;
-  ctx.lineWidth = Math.max(1.5, s * 0.28);
-  ctx.lineCap = 'round';
-  const hipY = py - s * 0.85;
-  const blob = (x, y, rx, ry, color) => {
-    ctx.fillStyle = color;
-    ctx.beginPath();
-    ctx.ellipse(px + x * s, py + y * s, rx * s, ry * s, 0, 0, Math.PI * 2);
-    ctx.fill();
-  };
-  if (kind === 'penguin') {   // a round body on two waddling feet instead of legs
-    for (const sgn of [1, -1]) blob(sgn * 0.17 + Math.sin(swing * sgn) * 0.12, -0.06, 0.15, 0.07, c.legs);
-    blob(0, -0.6, 0.4, 0.5, c.fur);
-  } else {
-    for (const sgn of [1, -1]) {
-      ctx.beginPath();
-      ctx.moveTo(px + sgn * s * 0.15, hipY);
-      ctx.lineTo(px + sgn * s * 0.15 + Math.sin(swing * sgn) * s * 0.55, py - s * 0.05);
-      ctx.stroke();
-    }
-  }
-  const tri = (pts, color) => {
-    ctx.fillStyle = color;
-    ctx.beginPath();
-    pts.forEach(([x, y], i) => (i ? ctx.lineTo : ctx.moveTo).call(ctx, px + x * s, py + y * s));
-    ctx.fill();
-  };
-  // arms and flippers hang beside the shirt
-  if (kind === 'gorilla') for (const sgn of [1, -1]) blob(sgn * 0.45, -1.15, 0.17, 0.5, c.fur);
-  if (kind === 'penguin') for (const sgn of [1, -1]) blob(sgn * 0.42, -1.3, 0.1, 0.32, c.fur);
-  // the body: a shirt on people, fur (or scales) on animals, broader on the big ones
-  const half = kind === 'gorilla' ? 0.5 : kind === 'bear' ? 0.46 : 0.4;
-  ctx.fillStyle = c.back || c.fur || body;
-  ctx.beginPath();
-  ctx.roundRect(px - s * half, py - s * 1.85, s * half * 2, s * 1.1, s * 0.38);
-  ctx.fill();
-  // head, plus whatever sticks out of it
-  if (kind === 'bear') for (const sgn of [1, -1]) blob(sgn * 0.27, -2.42, 0.13, 0.13, c.fur);
-  if (kind === 'shark') tri([[-0.13, -2.4], [0.06, -2.95], [0.17, -2.38]], c.fur);
-  if (kind === 'gorilla') blob(0, -2.36, 0.22, 0.2, c.fur);
-  blob(0, -2.15, kind === 'trex' ? 0.42 : 0.38, kind === 'shark' ? 0.44 : 0.38, c.fur || '#ffe0c2');
-  if (kind === 'dog') for (const sgn of [1, -1]) blob(sgn * 0.36, -2.06, 0.12, 0.26, c.dark);
-  if (kind === 'trex') for (const x of [-0.18, 0, 0.18]) tri([[x - 0.08, -2.5], [x, -2.72], [x + 0.08, -2.5]], c.dark);
-  // tails reach back towards the camera, so they go on top
-  const wag = Math.sin(phase * 2);
-  if (kind === 'dog') {
-    ctx.strokeStyle = c.dark;
-    ctx.lineWidth = Math.max(1.5, s * 0.2);
-    ctx.beginPath();
-    ctx.moveTo(px, py - s * 0.95);
-    ctx.lineTo(px + wag * s * 0.35, py - s * 1.45);
-    ctx.stroke();
-  }
-  if (kind === 'shark') tri([[0, -0.95], [-0.4 + wag * 0.08, -0.25], [0, -0.5], [0.4 + wag * 0.08, -0.25]], c.fur);
-  if (kind === 'trex') tri([[-0.24, -1.0], [0.24, -1.0], [wag * 0.25, 0.1]], c.dark);
+  ctx.save();
+  ctx.translate(px, py);
+  ctx.scale(s, s);
+  unitPx = s;
+  BODIES[kind](still ? 0 : Math.sin(phase), still ? 0 : phase, CREATURES[kind], body, dark, still);
+  ctx.restore();
   ctx.globalAlpha = 1;
 }
 
