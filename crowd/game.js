@@ -202,15 +202,17 @@ const starText = (s) => '★'.repeat(s) + '☆'.repeat(3 - s);
 const OUTFITS = [
   { name: 'Blár', body: '#2f7fc4', dark: '#1d5b93' },
   { name: 'Grænn', body: '#3f9a4a', dark: '#26692f' },
-  { name: 'Sægrænn', body: '#2a9d8f', dark: '#1c6d63' },
+  { name: 'Ljóssægrænn', body: '#20b2aa', dark: '#148079' },
   { name: 'Fjólublár', body: '#7b4bb3', dark: '#53307f' },
   { name: 'Bleikur', body: '#e45fa4', dark: '#a83a73' },
   { name: 'Gulur', body: '#f2c230', dark: '#a8820f' },
 ];
-// Saved by name; the first version saved a position in this older list.
+// Saved by name; the first version saved a position in this older list, and Sægrænn
+// became the lighter Ljóssægrænn.
 const OLD_OUTFITS = ['Blár', 'Grænn', 'Fjólublár', 'Appelsínugulur', 'Bleikur', 'Gulur'];
-const savedOutfit = store.get('outfit', '');
-let outfit = OUTFITS.find((o) => o.name === (OLD_OUTFITS[savedOutfit] || savedOutfit)) || OUTFITS[0];
+const RENAMED = { Sægrænn: 'Ljóssægrænn' };
+const savedOutfit = OLD_OUTFITS[store.get('outfit', '')] || store.get('outfit', '');
+let outfit = OUTFITS.find((o) => o.name === (RENAMED[savedOutfit] || savedOutfit)) || OUTFITS[0];
 
 // Who runs in the group (each is drawn by BODIES). Animals have fur (or feathers or
 // scales) and a darker shade for ears, tails and spikes; people wear the outfit.
