@@ -11,9 +11,6 @@ const lbOn = () => typeof LEADERBOARD === 'object' && !!LEADERBOARD.url && !!LEA
 const playerName = () => lbStore.get('name', '').trim();
 const setPlayerName = (name) => lbStore.set('name', name.trim().slice(0, NAME_MAX));
 
-// Minesweeper times read as seconds, the puzzles as minutes:seconds.
-const formatTime = (game, s) => (game === 'minesweeper' ? `${s} sek` : clock(s));
-
 function lbHeaders(extra) {
   const h = { apikey: LEADERBOARD.key, ...extra };
   // Older "anon" keys are JWTs and also go in Authorization; new "sb_publishable_" keys don't.

@@ -156,7 +156,7 @@
         who.textContent = row.player;
         const time = document.createElement('span');
         time.className = 'time';
-        time.textContent = formatTime(game, row.seconds);
+        time.textContent = clock(row.seconds);
         li.append(place, who, time);
         return li;
       }));
