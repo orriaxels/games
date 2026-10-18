@@ -71,6 +71,7 @@
     .tile.ms { --c: var(--moss); --c-dark: var(--moss-dark); }
     .tile.sd { --c: var(--glacier); --c-dark: var(--glacier-dark); }
     .tile.rg { --c: var(--crowberry); --c-dark: var(--crowberry-dark); }
+    .tile.cr { --c: var(--lagoon); --c-dark: var(--lagoon-dark); }
     .tile img {
       flex: none;
       width: 80px;
@@ -126,6 +127,13 @@
         <span class="tile-note" id="rg-note">Krossgáta með tölum</span>
       </span>
     </a>
+    <a class="tile cr" href="crowd/">
+      <img src="icons/crowd.png" alt="">
+      <span class="tile-text">
+        <span class="tile-name">Crowd Runner</span>
+        <span class="tile-note" id="cr-note">Stækkaðu hópinn</span>
+      </span>
+    </a>
 
     <a class="leaderboard" id="leaderboard" href="stigatafla/" hidden>🏅 Stigatafla</a>
   </main>
@@ -152,6 +160,10 @@
       if (current && LEVEL_NAMES[current.level]) $(prefix + '-note').textContent = `▶ Halda áfram (${LEVEL_NAMES[current.level]})`;
       else if (best) $(prefix + '-note').textContent = `🏆 ${LEVEL_NAMES[best]}: ${clock(rec.best(best))}`;
     }
+
+    const cr = makeRecords(makeStore('cr-'), { higher: true });
+    const crBest = Object.keys(LEVEL_NAMES).find((lv) => cr.best(lv));
+    if (crBest) $('cr-note').textContent = `🏆 ${LEVEL_NAMES[crBest]}: ${cr.best(crBest)} eftir`;
 
     // Leaderboard: the button, and who's playing on this phone.
     $('leaderboard').hidden = !lbOn();

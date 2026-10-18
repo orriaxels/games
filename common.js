@@ -25,8 +25,9 @@ function makeStore(prefix) {
   return { get, set, getJSON, setJSON, remove };
 }
 
-// Best time per level, played/won counts and a capped history list.
-function makeRecords(store) {
+// Best result per level, played/won counts and a capped history list.
+// By default the best is the lowest `time`; with { higher: true } it's the highest `score`.
+function makeRecords(store, { higher = false } = {}) {
   const best = (lv) => Number(store.get('best-' + lv, 0)) || 0;
   const stats = () => store.getJSON('stats', {});
   const history = () => {
@@ -39,7 +40,7 @@ function makeRecords(store) {
     history,
     // Returns true when this is a new record.
     add(entry) {
-      entry = { ...entry, time: Math.max(1, entry.time) };   // 0 would read as "no record"
+      if (!higher) entry = { ...entry, time: Math.max(1, entry.time) };   // 0 would read as "no record"
       const s = stats();
       const lv = s[entry.level] || (s[entry.level] = { played: 0, won: 0 });
       lv.played++;
@@ -47,8 +48,9 @@ function makeRecords(store) {
       store.setJSON('stats', s);
       store.setJSON('history', [{ at: Date.now(), ...entry }, ...history()].slice(0, HISTORY_MAX));
       const old = best(entry.level);
-      if (entry.won && (!old || entry.time < old)) {
-        store.set('best-' + entry.level, entry.time);
+      const value = higher ? entry.score : entry.time;
+      if (entry.won && (!old || (higher ? value > old : value < old))) {
+        store.set('best-' + entry.level, value);
         return true;
       }
       return false;

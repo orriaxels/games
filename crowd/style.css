@@ -1,0 +1,16 @@
+/* Crowd Runner. Shared layout and popups are in ../common.css. */
+:root {
+  --game: var(--lagoon);
+  --game-dark: var(--lagoon-dark);
+}
+
+.board-wrap { align-items: stretch; }
+
+#game {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: 20px;
+  box-shadow: 0 6px 0 var(--lagoon-dark);
+  touch-action: none;   /* dragging steers the group; the page shouldn't scroll or zoom */
+}

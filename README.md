@@ -23,6 +23,12 @@ Upphafssíðan býður upp á þrjá leiki:
 - Miðlungs: ný krossgáta í hvert sinn, 7 jöfnur, tölur upp í 50, 7 auðir reitir
 - Erfitt: ný krossgáta í hvert sinn, 10 jöfnur, tölur upp í 100, 10 auðir reitir
 
+**Crowd Runner** (`crowd/`)
+- Hópurinn hleypur af stað; dragðu hann til hliðar til að velja hlið (+10, ×2, −5, ÷2 …)
+- Bláu hliðin stækka hópinn, rauðu minnka hann. Oft þarf að reikna hvort hliðið gefur meira
+- Rauðir hópar á veginum berjast einn á móti einum, og í lokin er kastali: komdu með fleiri en eru í honum
+- Létt: + og × · Miðlungs: líka − · Erfitt: líka ÷. Metið er hversu margir eru eftir
+
 Allir leikirnir eru með Létt / Miðlungs / Erfitt og 🏆 takka sem sýnir metið á hverju stigi og síðustu leiki.
 Metin eru geymd í vafranum á hverjum síma fyrir sig (ekki á netinu), svo hvert barn á sín eigin met.
 Ef vafragögnum (website data) er eytt í stillingum símans hverfa metin líka.

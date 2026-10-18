@@ -1,6 +1,6 @@
 // Offline support. When online, always fetch the newest files (skipping the browser's
 // own cache) and keep a copy; when offline or very slow, use the copy instead.
-const CACHE = 'leikir-v17';
+const CACHE = 'leikir-v18';
 const NETWORK_TIMEOUT_MS = 4000;
 const ASSETS = [
   './',
@@ -14,6 +14,11 @@ const ASSETS = [
   'icons/namuleit.png',
   'icons/sudoku.png',
   'icons/reiknigata.png',
+  'icons/crowd.png',
+  'crowd/',
+  'crowd/index.html',
+  'crowd/style.css',
+  'crowd/game.js',
   'namuleit/',
   'namuleit/index.html',
   'namuleit/style.css',
