@@ -144,7 +144,8 @@ function updateBest() { $('best').textContent = records.best(level) || '–'; }
 const fightGap = (it) => (it.kind === 'boss' ? 2.6 : 0.9);
 
 function step(dt) {
-  crowdX += (steer - crowdX) * Math.min(1, dt * 10);
+  keySteer(dt);
+  crowdX += (steer - crowdX) * Math.min(1, dt * 14);
   if (state === 'running') {
     dist += LEVELS[level].speed * dt;
     for (const it of track.items) {
@@ -420,16 +421,30 @@ canvas.addEventListener('pointerup', (e) => {
 });
 canvas.addEventListener('pointercancel', () => { drag = null; });
 
+// Arrow keys: the group slides for as long as a key is held (key repeat is ignored).
+const KEY_SPEED = 2.6;    // road widths per second, about
+const KEY_NUDGE = 0.12;   // so even a quick tap moves it a little
+const held = { ArrowLeft: false, ArrowRight: false };
 document.addEventListener('keydown', (e) => {
-  if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+  if (e.key in held) {
     e.preventDefault();
     if (state === 'ready') state = 'running';
-    steer = clampSteer(steer + (e.key === 'ArrowLeft' ? -0.3 : 0.3));
+    if (!e.repeat && !held[e.key]) steer = clampSteer(steer + (e.key === 'ArrowLeft' ? -KEY_NUDGE : KEY_NUDGE));
+    held[e.key] = true;
   } else if (e.key === ' ' && state === 'ready') {
     e.preventDefault();
     state = 'running';
   }
 });
+document.addEventListener('keyup', (e) => {
+  if (e.key in held) held[e.key] = false;
+});
+window.addEventListener('blur', () => { held.ArrowLeft = held.ArrowRight = false; });
+
+function keySteer(dt) {
+  const dir = (held.ArrowRight ? 1 : 0) - (held.ArrowLeft ? 1 : 0);
+  if (dir) steer = clampSteer(steer + dir * KEY_SPEED * dt);
+}
 
 $('levels').addEventListener('click', (e) => {
   const b = e.target.closest('button');
