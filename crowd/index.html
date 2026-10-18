@@ -27,7 +27,7 @@
     </header>
 
     <div class="row">
-      <button id="level-btn" class="level-btn" type="button" aria-label="Velja borð">Borð <span id="level-no">1</span> <span class="level-stars" id="level-stars"></span></button>
+      <button id="level-btn" class="level-btn" type="button" aria-label="Velja borð">Borð <span id="level-no">1</span> <span id="level-mode" hidden>🔥 Erfitt</span> <span class="level-stars" id="level-stars"></span></button>
       <button id="pause" class="sound" type="button" aria-label="Hlé" disabled>⏸️</button>
       <button id="sound" class="sound" type="button" aria-label="Hljóð">🔊</button>
     </div>
@@ -55,6 +55,10 @@
   <div class="overlay" id="picker" hidden>
     <div class="card picker">
       <h2>Veldu borð</h2>
+      <div class="modes" id="modes">
+        <button type="button" data-mode="medium">Miðlungs</button>
+        <button type="button" data-mode="hard">🔥 Erfitt</button>
+      </div>
       <p id="picker-total"></p>
       <p class="outfit-label">Hver hleypur?</p>
       <div class="creatures" id="creatures"></div>

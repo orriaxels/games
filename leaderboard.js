@@ -4,7 +4,8 @@
 // Needs ../common.js.
 
 const GAME_NAMES = { minesweeper: 'Minesweeper', sudoku: 'Sudoku', reiknigata: 'Reiknigáta', crowd: 'Crowd Runner' };
-// Crowd Runner has one board ranked by total stars, most first; the others rank by time.
+// Crowd Runner ranks total stars, most first (one board per mode: medium and hard); the
+// others rank by time.
 const byStars = (game) => game === 'crowd';
 const NAME_MAX = 20;
 const lbStore = makeStore('lb-');
@@ -32,8 +33,11 @@ function lbFlush() {
       const res = await fetch(LEADERBOARD.url.replace(/\/$/, '') + '/rest/v1/scores', {
         method: 'POST',
         headers: lbHeaders({ 'Content-Type': 'application/json', Prefer: 'return=minimal' }),
-        // rows sent together must all have the same keys
-        body: JSON.stringify(sending.map((r) => ({ seconds: null, stars: null, ...r }))),
+        // rows sent together must all have the same keys; Crowd Runner's single 'stars'
+        // board from before the modes is now its medium board
+        body: JSON.stringify(sending.map((r) => ({
+          seconds: null, stars: null, ...r, ...(r.level === 'stars' && { level: 'medium' }),
+        }))),
       });
       // Sent, or rejected for good (bad data): either way don't send these again.
       if (res.ok || (res.status >= 400 && res.status < 500)) {

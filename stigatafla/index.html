@@ -16,7 +16,7 @@
   <style>
     .title { margin: 0; font-family: var(--display); font-size: var(--s2); font-weight: 800; line-height: 1; letter-spacing: -0.02em; text-align: center; }
     .app > .levels { flex: none; }   /* shared style lets them grow, which is meant for a row */
-    .app > .levels[hidden] { display: none; }
+    .levels button[hidden] { display: none; }
     .games { border-radius: 24px; }
     .games button { display: grid; place-items: center; padding: 6px 0; border-radius: 20px; }
     .games img { width: 50px; height: 50px; border-radius: 13px; opacity: 0.5; transition: opacity 180ms var(--ease-out), transform 180ms var(--ease-out); }
@@ -128,8 +128,12 @@
       document.documentElement.style.setProperty('--game', `var(${c})`);
       document.documentElement.style.setProperty('--game-dark', `var(${dark})`);
       document.querySelectorAll('#games button').forEach((b) => b.classList.toggle('active', b.dataset.game === game));
-      document.querySelectorAll('#levels button').forEach((b) => b.classList.toggle('active', b.dataset.level === level));
-      $('levels').hidden = byStars(game);   // Crowd Runner has one board for all its levels
+      // Crowd Runner has only medium and hard
+      const shown = byStars(game) && level === 'easy' ? 'medium' : level;
+      document.querySelectorAll('#levels button').forEach((b) => {
+        b.classList.toggle('active', b.dataset.level === shown);
+        b.hidden = byStars(game) && b.dataset.level === 'easy';
+      });
       $('me').textContent = playerName() ? `👤 ${playerName()} ✏️` : '👤 Skrifaðu nafnið þitt';
       if (!lbOn()) return status('Stigataflan hefur ekki verið sett upp enn.');
 
@@ -138,7 +142,7 @@
       await lbFlush();
       let board;
       try {
-        board = await lbBoard(game, byStars(game) ? 'stars' : level);
+        board = await lbBoard(game, shown);
       } catch {
         if (id === loadId) status('Næ ekki í stigatöfluna. Tengdu netið og ýttu svo á 🔄.');
         return;

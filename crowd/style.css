@@ -52,6 +52,14 @@
 .stars span:nth-child(2) { animation-delay: 120ms; }
 .stars span:nth-child(3) { animation-delay: 240ms; }
 
+/* Medium or hard, at the very top of the level picker */
+.modes { display: flex; gap: 4px; margin: 10px 0 8px; padding: 4px; border-radius: 999px; background: #e6ecf1; }
+.modes button {
+  flex: 1; padding: 8px 0; border: none; border-radius: 999px;
+  background: none; color: var(--night-soft); font-size: var(--s0); font-weight: 700;
+}
+.modes button[aria-pressed="true"] { background: var(--lagoon); color: #fff; box-shadow: 0 3px 0 var(--lagoon-dark); }
+
 /* Clothes colour, at the top of the level picker */
 .picker .outfit-label { margin-bottom: 8px; font-weight: 700; }
 .outfits { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; margin-bottom: 18px; }

@@ -63,13 +63,13 @@ function makeGate(rand, op, n) {
 
 // Two gates side by side. Usually both help and the kid works out which helps more;
 // on later levels sometimes one of them hurts.
-function gatePair(rand, ops, n) {
+function gatePair(rand, ops, n, badShare) {
   const pick = (a) => a[Math.floor(rand() * a.length)];
   const good = ops.filter((o) => o === '+' || (o === '×' && n < 400));
   const bad = n >= RED_FROM ? ops.filter((o) => o === '−' || o === '÷') : [];
   for (let t = 0; t < 30; t++) {
     let a, b;
-    if (bad.length && rand() < 0.35) {
+    if (bad.length && rand() < badShare) {
       a = makeGate(rand, pick(good), n);
       b = makeGate(rand, pick(bad), n);
     } else {
@@ -83,8 +83,27 @@ function gatePair(rand, ops, n) {
 
 // --- levels ---
 
-function levelParams(n) {
+// Medium is the game as it was first made. Hard has its own roads, with more and bigger
+// red groups, more and wider spikes that start sliding sooner, more bad gates, a faster
+// run and a bigger castle.
+function levelParams(n, hard) {
   const k = Math.min(1, (n - 1) / 29);   // 0 on level 1, 1 from level 30
+  if (hard) {
+    return {
+      rows: Math.min(13, 6 + Math.floor(n / 3)),
+      fights: n < 2 ? 0 : Math.min(5, 1 + Math.floor((n - 2) / 4)),
+      spikes: n < 3 ? 0 : Math.min(6, 1 + Math.floor((n - 3) / 3)),
+      moving: n >= 6,
+      ops: n < 3 ? ['+', '×'] : n < 6 ? ['+', '×', '−'] : ['+', '×', '−', '÷'],
+      speed: 6.2 + 2.2 * k,
+      // the castle is sized for a careful kid, who picks the better gate 95% of the time
+      skill: 0.95,
+      target: 0.85 - 0.45 * k,
+      badShare: 0.5,
+      fightShare: 0.6,
+      spikeW: 0.6,   // at most 0.8 wide, which still leaves room for the biggest group
+    };
+  }
   return {
     rows: Math.min(12, 5 + Math.floor(n / 3)),
     fights: n < 3 ? 0 : Math.min(4, 1 + Math.floor((n - 3) / 5)),
@@ -93,18 +112,22 @@ function levelParams(n) {
     ops: n < 4 ? ['+', '×'] : n < 9 ? ['+', '×', '−'] : ['+', '×', '−', '÷'],
     speed: 5.2 + 2 * k,
     // share of runs that a kid who picks the better gate 80% of the time should win
+    skill: 0.8,
     target: 0.97 - 0.42 * k,
+    badShare: 0.35,             // share of gate pairs with a red gate, once they show up
+    fightShare: FIGHT_SHARE,
+    spikeW: 0.55,               // spike patches are this wide, plus up to 0.2
   };
 }
 
-// A kid playing the level, for sizing the castle: picks the better gate 80% of the time,
-// and clips a spike patch now and then. Returns the group left when reaching the castle.
-function simulateKid(items, rand) {
+// A kid playing the level, for sizing the castle: picks the better gate `skill` of the
+// time, and clips a spike patch now and then. Returns the group left at the castle.
+function simulateKid(items, rand, skill) {
   let n = 1;
   for (const it of items) {
     if (it.kind === 'gates') {
       const a = apply(it.left.op, n, it.left.v), b = apply(it.right.op, n, it.right.v);
-      n = rand() < 0.8 ? Math.max(a, b) : Math.min(a, b);
+      n = rand() < skill ? Math.max(a, b) : Math.min(a, b);
     } else if (it.kind === 'spikes') {
       if (rand() < 0.35) n = Math.max(1, Math.round(n * 0.8));
     } else if (it.kind === 'enemy') {
@@ -119,36 +142,36 @@ function simulateKid(items, rand) {
 // `low` avoids red gates but always takes the smaller blue one. Red groups are sized from
 // `low` so one wrong choice doesn't end the game. The castle is then sized by playing the
 // level many times as a typical kid, so it's beaten about `target` of the time.
-function makeLevel(n) {
-  const P = levelParams(n);
-  const rand = seeded(n * 2654435761);
+function makeLevel(n, hard) {
+  const P = levelParams(n, hard);
+  const rand = seeded(n * 2654435761 + (hard ? 977 : 0));
   const items = [];
   const spread = (count) => new Set([...Array(count).keys()].map((k) => Math.round(((k + 1) * P.rows) / (count + 1)) - 1));
   const fightAfter = spread(P.fights);
   const spikeAfter = spread(P.spikes);
   let best = 1, low = 1, z = FIRST;
   for (let r = 0; r < P.rows; r++) {
-    const [left, right] = gatePair(rand, P.ops, Math.round(Math.sqrt(best * low)));
+    const [left, right] = gatePair(rand, P.ops, Math.round(Math.sqrt(best * low)), P.badShare);
     items.push({ kind: 'gates', z, left, right, done: false });
     best = Math.max(apply(left.op, best, left.v), apply(right.op, best, right.v));
     low = Math.min(...[left, right].filter(isGood).map((g) => apply(g.op, low, g.v)));
     if (spikeAfter.has(r)) {
-      const w = 0.55 + rand() * 0.2;
+      const w = P.spikeW + rand() * 0.2;
       const side = rand() < 0.5 ? -1 : 1;
       const moving = P.moving && rand() < 0.5;
       items.push({ kind: 'spikes', z: z + 3.5, len: 3, w, side, moving, phase: rand() * 6.28, done: false });
     }
     z += SPACING;
     if (fightAfter.has(r)) {
-      const size = Math.max(1, Math.min(low - 1, Math.round(low * FIGHT_SHARE)));
+      const size = Math.max(1, Math.min(low - 1, Math.round(low * P.fightShare)));
       items.push({ kind: 'enemy', z, count: size, start: size, done: false });
       best -= size;
       low -= size;
       z += SPACING;
     }
   }
-  const sim = seeded(n * 7919 + 13);
-  const finals = [...Array(300)].map(() => simulateKid(items, sim)).sort((a, b) => a - b);
+  const sim = seeded(n * 7919 + 13 + (hard ? 977 : 0));
+  const finals = [...Array(300)].map(() => simulateKid(items, sim, P.skill)).sort((a, b) => a - b);
   const castle = Math.max(3, Math.min(best - 1, finals[Math.floor((1 - P.target) * finals.length)]));
   items.push({ kind: 'boss', z: z + 2, count: castle, start: castle, done: false });
   return { n, P, items, end: z + 2, best, castle };
@@ -160,14 +183,18 @@ function starsFor(lvl, left) {
   return margin >= 0.6 ? 3 : margin >= 0.25 ? 2 : 1;
 }
 
-// --- progress: unlocked levels, stars and best result per level ---
+// --- progress: unlocked levels, stars and best result per level, for each mode ---
+
+let mode = store.get('mode', 'medium') === 'hard' ? 'hard' : 'medium';
+// Medium keeps the storage keys from before there were modes, so nobody loses progress.
+const modeKey = (key) => (mode === 'hard' ? key + '-hard' : key);
 
 function loadProgress() {
-  const p = store.getJSON('progress', null) || {};
+  const p = store.getJSON(modeKey('progress'), null) || {};
   return { unlocked: Math.max(1, Number(p.unlocked) || 1), stars: p.stars || {}, best: p.best || {} };
 }
 let progress = loadProgress();
-const saveProgress = () => store.setJSON('progress', progress);
+const saveProgress = () => store.setJSON(modeKey('progress'), progress);
 const totalStars = () => Object.values(progress.stars).reduce((a, b) => a + b, 0);
 const starText = (s) => '★'.repeat(s) + '☆'.repeat(3 - s);
 
@@ -246,13 +273,14 @@ const sfx = {
 
 // --- the run ---
 
-let levelNo = Math.min(progress.unlocked, Math.max(1, Number(store.get('level-n', progress.unlocked)) || 1));
+const savedLevel = () => Math.min(progress.unlocked, Math.max(1, Number(store.get(modeKey('level-n'), progress.unlocked)) || 1));
+let levelNo = savedLevel();
 let lvl, count, dist, steer, crowdX, cam, state, battle, popups, particles, units, shake, wonAt, runId = 0;
 let t = 0;   // seconds since the page loaded, for animation
 
 function newRun() {
   runId++;
-  lvl = makeLevel(levelNo);
+  lvl = makeLevel(levelNo, mode === 'hard');
   lvl.items.forEach((it) => { it.done = false; if (it.start) it.count = it.start; });
   count = 1;
   dist = 0;
@@ -270,6 +298,7 @@ function newRun() {
   $('picker').hidden = true;
   $('boss').textContent = lvl.castle;
   $('level-no').textContent = levelNo;
+  $('level-mode').hidden = mode !== 'hard';
   $('level-stars').textContent = progress.stars[levelNo] ? starText(progress.stars[levelNo]) : '';
   $('hint').textContent = lvl.P.spikes ? 'Veldu hlið og forðastu broddana!' : 'Dragðu hópinn til hliðar til að velja hlið';
   updateCount();
@@ -277,7 +306,15 @@ function newRun() {
 
 function setLevel(n) {
   levelNo = Math.max(1, Math.min(MAX_LEVEL, n));
-  store.set('level-n', levelNo);
+  store.set(modeKey('level-n'), levelNo);
+  newRun();
+}
+
+function setMode(m) {
+  mode = m;
+  store.set('mode', m);
+  progress = loadProgress();
+  levelNo = savedLevel();
   newRun();
 }
 
@@ -446,7 +483,7 @@ function win() {
     $('next').hidden = levelNo >= MAX_LEVEL;
     $('again').textContent = 'Aftur';
     // the scoreboard ranks total stars, so only a new star changes the place
-    if (totalStars() > oldTotal) lbAfterWin('crowd', 'stars', totalStars());
+    if (totalStars() > oldTotal) lbAfterWin('crowd', mode, totalStars());
   }, 1300);
 }
 
@@ -871,7 +908,7 @@ function draw() {
     ctx.font = `800 ${Math.round(Math.min(46, W * 0.11))}px ${FONT}`;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    ctx.fillText(`Borð ${levelNo}`, W / 2, H * 0.36);
+    ctx.fillText(`Borð ${levelNo}${mode === 'hard' ? ' 🔥' : ''}`, W / 2, H * 0.36);
     pill('Ýttu til að byrja', W / 2, H * 0.48, 22, '#ff8a1f', '#1b2a4a');
   }
 }
@@ -1039,6 +1076,7 @@ function drawCreatures() {
 }
 
 function openPicker() {
+  document.querySelectorAll('#modes button').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.mode === mode)));
   $('picker-total').textContent = `⭐ ${totalStars()} af ${MAX_LEVEL * 3}`;
   drawCreatures();
   drawOutfits();
@@ -1064,6 +1102,12 @@ function openPicker() {
 
 $('level-btn').addEventListener('click', () => { setPaused(true); openPicker(); });
 $('pause').addEventListener('click', () => setPaused(!paused));
+$('modes').addEventListener('click', (e) => {
+  const b = e.target.closest('[data-mode]');
+  if (!b || b.dataset.mode === mode) return;
+  setMode(b.dataset.mode);
+  openPicker();   // stay in the picker to choose a level in the new mode
+});
 $('new').addEventListener('click', newRun);
 $('again').addEventListener('click', newRun);
 $('next').addEventListener('click', () => setLevel(levelNo + 1));

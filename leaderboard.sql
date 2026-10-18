@@ -14,21 +14,24 @@ create table if not exists public.scores (
 
 create index if not exists scores_board on public.scores (game, level, seconds);
 
--- Crowd Runner ranks total stars instead of time, on one board (level 'stars'). Safe to
--- run again on a table made before this was added.
+-- Crowd Runner ranks total stars instead of time, with a board for each of its modes
+-- (medium and hard). Safe to run again on a table made before this was added.
 alter table public.scores alter column seconds drop not null;
 alter table public.scores add column if not exists stars integer check (stars between 1 and 120);
 alter table public.scores drop constraint if exists scores_game_check;
 alter table public.scores add constraint scores_game_check
   check (game in ('minesweeper', 'sudoku', 'reiknigata', 'crowd'));
 alter table public.scores drop constraint if exists scores_level_check;
-alter table public.scores add constraint scores_level_check
-  check (level in ('easy', 'medium', 'hard', 'stars'));
--- a Crowd Runner row has stars and no time; every other row a time and no stars
 alter table public.scores drop constraint if exists scores_score_check;
+-- Crowd Runner first had one board, 'stars'; those scores were all played on medium.
+update public.scores set level = 'medium' where game = 'crowd' and level = 'stars';
+alter table public.scores add constraint scores_level_check
+  check (level in ('easy', 'medium', 'hard'));
+-- a Crowd Runner row has stars and no time (and no easy board); every other row a time
+-- and no stars
 alter table public.scores add constraint scores_score_check check (
-  case when game = 'crowd' then level = 'stars' and stars is not null and seconds is null
-       else level <> 'stars' and seconds is not null and stars is null end
+  case when game = 'crowd' then level <> 'easy' and stars is not null and seconds is null
+       else seconds is not null and stars is null end
 );
 create index if not exists scores_stars_board on public.scores (game, level, stars desc);
 
