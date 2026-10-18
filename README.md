@@ -26,8 +26,10 @@ Upphafssíðan býður upp á þrjá leiki:
 **Crowd Runner** (`crowd/`)
 - Hópurinn hleypur af stað; dragðu hann til hliðar til að velja hlið (+10, ×2, −5, ÷2 …)
 - Bláu hliðin stækka hópinn, rauðu minnka hann. Oft þarf að reikna hvort hliðið gefur meira
-- Rauðir hópar á veginum berjast einn á móti einum, og í lokin er kastali: komdu með fleiri en eru í honum
-- Létt: + og × · Miðlungs: líka − · Erfitt: líka ÷. Metið er hversu margir eru eftir
+- Rauðir hópar á veginum berjast einn á móti einum, broddar skera af hópnum, og í lokin er kastali: komdu með fleiri en eru í honum
+- 40 borð sem þyngjast smám saman (fleiri hlið og bardagar, svo −, ÷, broddar og broddar á ferð).
+  Hvert borð er alltaf eins, að klára það opnar það næsta og gefur 1–3 stjörnur eftir því hversu margir eru eftir
+- Stærð kastalans er fundin með því að spila borðið mörgum sinnum í tölvunni sem krakki sem velur oftast rétt
 
 Allir leikirnir eru með Létt / Miðlungs / Erfitt og 🏆 takka sem sýnir metið á hverju stigi og síðustu leiki.
 Metin eru geymd í vafranum á hverjum síma fyrir sig (ekki á netinu), svo hvert barn á sín eigin met.

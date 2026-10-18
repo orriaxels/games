@@ -161,9 +161,11 @@
       else if (best) $(prefix + '-note').textContent = `🏆 ${LEVEL_NAMES[best]}: ${clock(rec.best(best))}`;
     }
 
-    const cr = makeRecords(makeStore('cr-'), { higher: true });
-    const crBest = Object.keys(LEVEL_NAMES).find((lv) => cr.best(lv));
-    if (crBest) $('cr-note').textContent = `🏆 ${LEVEL_NAMES[crBest]}: ${cr.best(crBest)} eftir`;
+    const crProgress = makeStore('cr-').getJSON('progress', null);
+    if (crProgress && crProgress.unlocked) {
+      const stars = Object.values(crProgress.stars || {}).reduce((a, b) => a + b, 0);
+      $('cr-note').textContent = `Borð ${crProgress.unlocked}${stars ? `, ⭐ ${stars}` : ''}`;
+    }
 
     // Leaderboard: the button, and who's playing on this phone.
     $('leaderboard').hidden = !lbOn();
