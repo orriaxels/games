@@ -91,7 +91,7 @@ function levelParams(n) {
     spikes: n < 6 ? 0 : Math.min(5, 1 + Math.floor((n - 6) / 4)),
     moving: n >= 14,
     ops: n < 4 ? ['+', '×'] : n < 9 ? ['+', '×', '−'] : ['+', '×', '−', '÷'],
-    speed: 6.5 + 2.5 * k,
+    speed: 5.2 + 2 * k,
     // share of runs that a kid who picks the better gate 80% of the time should win
     target: 0.97 - 0.42 * k,
   };
@@ -648,16 +648,19 @@ function runner(px, py, s, phase, body, dark, still, alpha = 1) {
   ctx.globalAlpha = 1;
 }
 
+// The group is drawn flat at its own depth rather than each runner in perspective, so it
+// reads as a round blob instead of a wedge that widens towards the camera.
 function drawCrowd() {
   const cx = groupX();
   const fade = state === 'won' ? Math.max(0, 1 - (t - wonAt) / 1.1) : 1;
-  const list = units.map((u, i) => [cx + u.ox, PLAYER_D + u.oz, i, u]).sort((a, b) => b[1] - a[1]);
-  for (const [x, d, i, u] of list) {
-    if (d <= 0.6) continue;
+  const unit = hScale() / PLAYER_D, y0 = gy(PLAYER_D);
+  const list = units.map((u, i) => [u, i]).sort((a, b) => b[0].oz - a[0].oz);
+  for (const [u, i] of list) {
     const grow = Math.min(1, (t - u.born) / 0.18);   // new runners pop in
-    const s = ((0.042 * vScale()) / d) * (0.6 + 0.4 * grow);
+    const depth = 1 - u.oz * 0.35;                    // the back rows a touch smaller
+    const s = ((0.042 * vScale()) / PLAYER_D) * depth * (0.6 + 0.4 * grow);
     const bob = state === 'running' ? Math.abs(Math.sin(t * 12 + i * 1.7)) * s * 0.25 : 0;
-    runner(sx(x, d), gy(d) - bob, s, t * 14 + i * 1.3, '#2f7fc4', '#1d5b93', state !== 'running' && state !== 'won', fade);
+    runner(sx(cx, PLAYER_D) + u.ox * unit, y0 - u.oz * unit - bob, s, t * 14 + i * 1.3, '#2f7fc4', '#1d5b93', state !== 'running' && state !== 'won', fade);
   }
   if (count > 0 && state !== 'won' && state !== 'battle') {
     pill(String(count), sx(cx, PLAYER_D), gy(PLAYER_D + groupRadius(), 0.2) - 34, 22, '#fff', '#1d5b93');
