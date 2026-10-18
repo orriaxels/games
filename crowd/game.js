@@ -168,7 +168,19 @@ function loadProgress() {
 }
 let progress = loadProgress();
 const saveProgress = () => store.setJSON('progress', progress);
+const totalStars = () => Object.values(progress.stars).reduce((a, b) => a + b, 0);
 const starText = (s) => '★'.repeat(s) + '☆'.repeat(3 - s);
+
+// Clothes the group can wear, picked in the level picker. Never red: that's the enemies.
+const OUTFITS = [
+  { name: 'Blár', body: '#2f7fc4', dark: '#1d5b93' },
+  { name: 'Grænn', body: '#3f9a4a', dark: '#26692f' },
+  { name: 'Fjólublár', body: '#7b4bb3', dark: '#53307f' },
+  { name: 'Appelsínugulur', body: '#f08a24', dark: '#b45f0c' },
+  { name: 'Bleikur', body: '#e45fa4', dark: '#a83a73' },
+  { name: 'Gulur', body: '#f2c230', dark: '#a8820f' },
+];
+let outfit = OUTFITS[Number(store.get('outfit', '0'))] || OUTFITS[0];
 
 // --- sound: little tones made in the browser, no files ---
 
@@ -257,7 +269,7 @@ function syncUnits() {
   while (units.length < want) units.push({ ox: (Math.random() - 0.5) * 0.05, oz: (Math.random() - 0.5) * 0.05, born: t });
   while (units.length > want) {
     const u = units.pop();
-    puff(groupX() + u.ox, PLAYER_D + u.oz, '#2f7fc4', 2);
+    puff(groupX() + u.ox, PLAYER_D + u.oz, outfit.body, 2);
   }
 }
 
@@ -349,7 +361,7 @@ function step(dt) {
       const cx = groupX(), front = PLAYER_D + groupRadius();
       for (let j = 0; j < Math.min(k, 4); j++) {
         const x = cx + (Math.random() - 0.5) * groupRadius() * 1.6;
-        puff(x, front + 0.2, '#2f7fc4', 1);
+        puff(x, front + 0.2, outfit.body, 1);
         puff(x, front + 0.45, '#e5484d', 1);
       }
       syncUnits();
@@ -390,6 +402,7 @@ function win() {
   const left = count;
   const stars = starsFor(lvl, left);
   const oldBest = progress.best[levelNo] || 0;
+  const oldTotal = totalStars();
   progress.stars[levelNo] = Math.max(progress.stars[levelNo] || 0, stars);
   progress.best[levelNo] = Math.max(oldBest, left);
   progress.unlocked = Math.max(progress.unlocked, Math.min(MAX_LEVEL, levelNo + 1));
@@ -410,6 +423,8 @@ function win() {
     $('stars').hidden = false;
     $('next').hidden = levelNo >= MAX_LEVEL;
     $('again').textContent = 'Aftur';
+    // the scoreboard ranks total stars, so only a new star changes the place
+    if (totalStars() > oldTotal) lbAfterWin('crowd', 'stars', totalStars());
   }, 1300);
 }
 
@@ -660,10 +675,10 @@ function drawCrowd() {
     const depth = 1 - u.oz * 0.35;                    // the back rows a touch smaller
     const s = ((0.042 * vScale()) / PLAYER_D) * depth * (0.6 + 0.4 * grow);
     const bob = state === 'running' ? Math.abs(Math.sin(t * 12 + i * 1.7)) * s * 0.25 : 0;
-    runner(sx(cx, PLAYER_D) + u.ox * unit, y0 - u.oz * unit - bob, s, t * 14 + i * 1.3, '#2f7fc4', '#1d5b93', state !== 'running' && state !== 'won', fade);
+    runner(sx(cx, PLAYER_D) + u.ox * unit, y0 - u.oz * unit - bob, s, t * 14 + i * 1.3, outfit.body, outfit.dark, state !== 'running' && state !== 'won', fade);
   }
   if (count > 0 && state !== 'won' && state !== 'battle') {
-    pill(String(count), sx(cx, PLAYER_D), gy(PLAYER_D + groupRadius(), 0.2) - 34, 22, '#fff', '#1d5b93');
+    pill(String(count), sx(cx, PLAYER_D), gy(PLAYER_D + groupRadius(), 0.2) - 34, 22, '#fff', outfit.dark);
   }
 }
 
@@ -886,9 +901,26 @@ $('sound').addEventListener('click', () => {
   if (soundOn) { audioStart(); sfx.good(); }
 });
 
+function drawOutfits() {
+  $('outfits').replaceChildren(...OUTFITS.map((o, i) => {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.style.setProperty('--c', o.body);
+    b.style.setProperty('--c-dark', o.dark);
+    b.setAttribute('aria-label', o.name);
+    b.setAttribute('aria-pressed', String(o === outfit));
+    b.addEventListener('click', () => {
+      outfit = o;
+      store.set('outfit', String(i));
+      drawOutfits();
+    });
+    return b;
+  }));
+}
+
 function openPicker() {
-  const totalStars = Object.values(progress.stars).reduce((a, b) => a + b, 0);
-  $('picker-total').textContent = `⭐ ${totalStars} af ${MAX_LEVEL * 3}`;
+  $('picker-total').textContent = `⭐ ${totalStars()} af ${MAX_LEVEL * 3}`;
+  drawOutfits();
   $('level-grid').replaceChildren(...[...Array(MAX_LEVEL)].map((_, i) => {
     const n = i + 1, b = document.createElement('button');
     b.type = 'button';

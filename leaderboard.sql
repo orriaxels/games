@@ -14,6 +14,24 @@ create table if not exists public.scores (
 
 create index if not exists scores_board on public.scores (game, level, seconds);
 
+-- Crowd Runner ranks total stars instead of time, on one board (level 'stars'). Safe to
+-- run again on a table made before this was added.
+alter table public.scores alter column seconds drop not null;
+alter table public.scores add column if not exists stars integer check (stars between 1 and 120);
+alter table public.scores drop constraint if exists scores_game_check;
+alter table public.scores add constraint scores_game_check
+  check (game in ('minesweeper', 'sudoku', 'reiknigata', 'crowd'));
+alter table public.scores drop constraint if exists scores_level_check;
+alter table public.scores add constraint scores_level_check
+  check (level in ('easy', 'medium', 'hard', 'stars'));
+-- a Crowd Runner row has stars and no time; every other row a time and no stars
+alter table public.scores drop constraint if exists scores_score_check;
+alter table public.scores add constraint scores_score_check check (
+  case when game = 'crowd' then level = 'stars' and stars is not null and seconds is null
+       else level <> 'stars' and seconds is not null and stars is null end
+);
+create index if not exists scores_stars_board on public.scores (game, level, stars desc);
+
 alter table public.scores enable row level security;
 
 drop policy if exists "anyone can read scores" on public.scores;

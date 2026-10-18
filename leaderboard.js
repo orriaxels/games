@@ -3,7 +3,9 @@
 // and leaderboard.sql). Everything here does nothing until the config has a url and key.
 // Needs ../common.js.
 
-const GAME_NAMES = { minesweeper: 'Minesweeper', sudoku: 'Sudoku', reiknigata: 'Reiknigáta' };
+const GAME_NAMES = { minesweeper: 'Minesweeper', sudoku: 'Sudoku', reiknigata: 'Reiknigáta', crowd: 'Crowd Runner' };
+// Crowd Runner has one board ranked by total stars, most first; the others rank by time.
+const byStars = (game) => game === 'crowd';
 const NAME_MAX = 20;
 const lbStore = makeStore('lb-');
 
@@ -30,7 +32,8 @@ function lbFlush() {
       const res = await fetch(LEADERBOARD.url.replace(/\/$/, '') + '/rest/v1/scores', {
         method: 'POST',
         headers: lbHeaders({ 'Content-Type': 'application/json', Prefer: 'return=minimal' }),
-        body: JSON.stringify(sending),
+        // rows sent together must all have the same keys
+        body: JSON.stringify(sending.map((r) => ({ seconds: null, stars: null, ...r }))),
       });
       // Sent, or rejected for good (bad data): either way don't send these again.
       if (res.ok || (res.status >= 400 && res.status < 500)) {
@@ -42,17 +45,19 @@ function lbFlush() {
 }
 window.addEventListener('online', () => lbFlush());
 
-function lbSubmit(game, level, seconds) {
+// `score` is seconds, or total stars for Crowd Runner.
+function lbSubmit(game, level, score) {
   if (!lbOn() || !playerName()) return Promise.resolve();
   const queue = lbStore.getJSON('queue', []);
-  queue.push({ player: playerName(), game, level, seconds: Math.max(1, seconds) });
+  queue.push({ player: playerName(), game, level, ...(byStars(game) ? { stars: score } : { seconds: Math.max(1, score) }) });
   lbStore.setJSON('queue', queue.slice(-50));
   return lbFlush();
 }
 
-// Each player's best time on one game and level, fastest first.
+// Each player's best on one game and level, best first.
 async function lbBoard(game, level) {
-  const q = `select=player,seconds,created_at&game=eq.${game}&level=eq.${level}&order=seconds.asc,created_at.asc&limit=1000`;
+  const order = byStars(game) ? 'stars.desc' : 'seconds.asc';
+  const q = `select=player,seconds,stars,created_at&game=eq.${game}&level=eq.${level}&order=${order},created_at.asc&limit=1000`;
   const res = await fetch(LEADERBOARD.url.replace(/\/$/, '') + '/rest/v1/scores?' + q, { headers: lbHeaders() });
   if (!res.ok) throw new Error('leaderboard ' + res.status);
   const best = new Map();
@@ -100,9 +105,9 @@ function nameForm(onSaved, label) {
   return form;
 }
 
-// --- after a win: send the time and show the place on the leaderboard ---
+// --- after a win: send the score and show the place on the leaderboard ---
 
-function lbAfterWin(game, level, seconds) {
+function lbAfterWin(game, level, score) {
   const box = document.getElementById('result-board');
   if (!lbOn() || !box) return;
   const show = (text) => {
@@ -114,7 +119,7 @@ function lbAfterWin(game, level, seconds) {
   };
   const submitAndRank = async () => {
     show('🏅 Sendi á stigatöfluna…');
-    await lbSubmit(game, level, seconds);
+    await lbSubmit(game, level, score);
     if (lbStore.getJSON('queue', []).length) {
       show('🏅 Fer á stigatöfluna þegar netið kemur');
       return;
