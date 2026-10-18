@@ -189,11 +189,16 @@ const CREATURES = {
   bear: { emoji: '🐻', name: 'Björn', fur: '#8b5a2b', legs: '#8b5a2b', dark: '#5e3b1b' },
   penguin: { emoji: '🐧', name: 'Mörgæs', fur: '#23272f', legs: '#f5a623', dark: '#111' },
   dog: { emoji: '🐕', name: 'Golden retriever', fur: '#e0aa4f', legs: '#e0aa4f', dark: '#b07a2a' },
-  gorilla: { emoji: '🦍', name: 'Górilla', fur: '#3b3b40', legs: '#3b3b40', dark: '#26262a' },
+  gorilla: { emoji: '🦍', name: 'Górilla', fur: '#3b3b40', legs: '#3b3b40', dark: '#26262a', back: '#7d7d86' },   // a silverback
   shark: { emoji: '🦈', name: 'Hákarl', fur: '#7f97ab', legs: '#7f97ab', dark: '#5c7285' },
   trex: { emoji: '🦖', name: 'Grameðla', fur: '#5aa05a', legs: '#5aa05a', dark: '#3c7a3c' },
 };
 let creature = CREATURES[store.get('creature', '')] ? store.get('creature', '') : 'person';
+// The group's main and dark colour: the clothes on people, the fur on animals.
+const groupColors = () => {
+  const c = CREATURES[creature];
+  return c.fur ? { body: c.fur, dark: c.dark } : outfit;
+};
 
 // --- sound: little tones made in the browser, no files ---
 
@@ -283,7 +288,7 @@ function syncUnits() {
   while (units.length < want) units.push({ ox: (Math.random() - 0.5) * 0.05, oz: (Math.random() - 0.5) * 0.05, born: t });
   while (units.length > want) {
     const u = units.pop();
-    puff(groupX() + u.ox, PLAYER_D + u.oz, outfit.body, 2);
+    puff(groupX() + u.ox, PLAYER_D + u.oz, groupColors().body, 2);
   }
 }
 
@@ -375,7 +380,7 @@ function step(dt) {
       const cx = groupX(), front = PLAYER_D + groupRadius();
       for (let j = 0; j < Math.min(k, 4); j++) {
         const x = cx + (Math.random() - 0.5) * groupRadius() * 1.6;
-        puff(x, front + 0.2, outfit.body, 1);
+        puff(x, front + 0.2, groupColors().body, 1);
         puff(x, front + 0.45, '#e5484d', 1);
       }
       syncUnits();
@@ -649,8 +654,8 @@ function drawSpikes(it, d1) {
 }
 
 // One runner, seen from behind. `phase` swings the legs; `still` is for the red groups
-// waiting on the road. `kind` is a key of CREATURES: animals keep the shirt in `body`
-// but get their own fur, legs, head and tail.
+// waiting on the road. `kind` is a key of CREATURES: people wear `body` and `dark`,
+// animals are their own colour all over.
 function runner(px, py, s, phase, body, dark, still, alpha = 1, kind = 'person') {
   const c = CREATURES[kind];
   ctx.globalAlpha = alpha;
@@ -689,9 +694,11 @@ function runner(px, py, s, phase, body, dark, still, alpha = 1, kind = 'person')
   // arms and flippers hang beside the shirt
   if (kind === 'gorilla') for (const sgn of [1, -1]) blob(sgn * 0.45, -1.15, 0.17, 0.5, c.fur);
   if (kind === 'penguin') for (const sgn of [1, -1]) blob(sgn * 0.42, -1.3, 0.1, 0.32, c.fur);
-  ctx.fillStyle = body;
+  // the body: a shirt on people, fur (or scales) on animals, broader on the big ones
+  const half = kind === 'gorilla' ? 0.5 : kind === 'bear' ? 0.46 : 0.4;
+  ctx.fillStyle = c.back || c.fur || body;
   ctx.beginPath();
-  ctx.roundRect(px - s * 0.4, py - s * 1.85, s * 0.8, s * 1.1, s * 0.38);
+  ctx.roundRect(px - s * half, py - s * 1.85, s * half * 2, s * 1.1, s * 0.38);
   ctx.fill();
   // head, plus whatever sticks out of it
   if (kind === 'bear') for (const sgn of [1, -1]) blob(sgn * 0.27, -2.42, 0.13, 0.13, c.fur);
@@ -703,7 +710,7 @@ function runner(px, py, s, phase, body, dark, still, alpha = 1, kind = 'person')
   // tails reach back towards the camera, so they go on top
   const wag = Math.sin(phase * 2);
   if (kind === 'dog') {
-    ctx.strokeStyle = c.fur;
+    ctx.strokeStyle = c.dark;
     ctx.lineWidth = Math.max(1.5, s * 0.2);
     ctx.beginPath();
     ctx.moveTo(px, py - s * 0.95);
@@ -711,7 +718,7 @@ function runner(px, py, s, phase, body, dark, still, alpha = 1, kind = 'person')
     ctx.stroke();
   }
   if (kind === 'shark') tri([[0, -0.95], [-0.4 + wag * 0.08, -0.25], [0, -0.5], [0.4 + wag * 0.08, -0.25]], c.fur);
-  if (kind === 'trex') tri([[-0.24, -1.0], [0.24, -1.0], [wag * 0.25, 0.1]], c.fur);
+  if (kind === 'trex') tri([[-0.24, -1.0], [0.24, -1.0], [wag * 0.25, 0.1]], c.dark);
   ctx.globalAlpha = 1;
 }
 
@@ -730,7 +737,7 @@ function drawCrowd() {
     runner(sx(cx, PLAYER_D) + u.ox * unit, y0 - u.oz * unit - bob, s, t * 14 + i * 1.3, outfit.body, outfit.dark, state !== 'running' && state !== 'won', fade, creature);
   }
   if (count > 0 && state !== 'won' && state !== 'battle') {
-    pill(String(count), sx(cx, PLAYER_D), gy(PLAYER_D + groupRadius(), 0.2) - 34, 22, '#fff', outfit.dark);
+    pill(String(count), sx(cx, PLAYER_D), gy(PLAYER_D + groupRadius(), 0.2) - 34, 22, '#fff', groupColors().dark);
   }
 }
 
@@ -1024,6 +1031,8 @@ function drawCreatures() {
     });
     return b;
   }));
+  // only people wear clothes
+  $('outfit-label').hidden = $('outfits').hidden = !!CREATURES[creature].fur;
 }
 
 function openPicker() {

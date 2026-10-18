@@ -55,6 +55,7 @@
 /* Clothes colour, at the top of the level picker */
 .picker .outfit-label { margin-bottom: 8px; font-weight: 700; }
 .outfits { display: flex; justify-content: center; gap: 10px; margin-bottom: 18px; }
+.outfits[hidden], .picker .outfit-label[hidden] { display: none; }
 .outfits button {
   width: 38px; height: 38px; border: none; border-radius: 50%;
   background: var(--c); box-shadow: 0 3px 0 var(--c-dark);
